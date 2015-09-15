@@ -11,8 +11,8 @@ Other features can also be incorporated, such as multi-player support, integrati
 
 The primary target for the game would include young professionals, stay-at-home parents, people who have a passion for volunteering, etc.
 
-# Stakeholders
-* "Amapola" LLC and University of Nebraska Omaha.
+# Stakeholder
+* "Amapalo" LLC
 
 # Develop Environment 
 * Unity3d
@@ -36,7 +36,7 @@ The primary target for the game would include young professionals, stay-at-home 
 * All other pull requests will be reviewed and processed in the order they come in. A contribution's value to the overall health will be determined by the SPDXHub internal team.
 * Suggestions and critiques for system improvement are welcomed. 
 
-# Copyright Declarations and License Choice
+# Copyright Declarations and License
 * Apache 2.0 License
 * Copyright © 2015 Matthew Callin and Khangal Erdenetsogt
 
@@ -50,7 +50,7 @@ The primary target for the game would include young professionals, stay-at-home 
   1. Overview/description for our project
   2. Milestone definitions
   3. Data flow diagram
-  4. Copyright declarations
+  4. Proposal
 
 
 
