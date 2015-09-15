@@ -1,6 +1,6 @@
 # System Charter and Description
 * Fundraising for Africa
-* Many parts of Africa lack the infrastructure to deliver basic services often taken for granted here, such as education, electricity, clean water, healthcare, etc. Addressing these issues involves solving multiple, complex and interrelated problems. A key problem underlying any undertaking for infrastructure improvement is fundraising to purchase materials and equipment.
+Many parts of Africa lack the infrastructure to deliver basic services often taken for granted here, such as education, electricity, clean water, healthcare, etc. Addressing these issues involves solving multiple, complex and interrelated problems. A key problem underlying any undertaking for infrastructure improvement is fundraising to purchase materials and equipment.
 
 The objective of this capstone project is to create a game that utilizes a crowdfunding model to raise money for villages in rural parts of Africa while also raising awareness of how these people live their lives and what types of struggles they face. The game would be like a cross between Oregon Trail and Farmville. It would provide a simulation of life in an African community, performing everyday tasks while working under the limitations imposed by the lack of infrastructure in that community. For example, to eat, one would need to go a significant distance to get water. In addition, the player's avatar as well as his/her community encounters the consequences of being in that environment, such as malaria, starvation, diarrhea and AIDS.
 
