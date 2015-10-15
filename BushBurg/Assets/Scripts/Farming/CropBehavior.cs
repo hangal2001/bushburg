@@ -194,10 +194,8 @@ public class CropBehavior : MonoBehaviour {
 
 			GameObject cropPad = storage.cropPads.Find (x => x.GetComponent<CropPadBehavior>().cropType == this.cropType);
 			indicator.GetComponent<CollectionBehavior>().FlyToTarget (cropPad.transform.position);
-    
-			//ke - update cropItemNumber;
 
-            Destroy (this.gameObject);
+			Destroy (this.gameObject);
 		}
 		else if (itemType == Utilities.ItemTypes.Meal)
 		{

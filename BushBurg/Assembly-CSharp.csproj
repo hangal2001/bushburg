@@ -54,6 +54,7 @@
      <Compile Include="Assets\Scripts\Farming\PlotManager_Script.cs" />
      <Compile Include="Assets\Scripts\GameController_Script.cs" />
      <Compile Include="Assets\Scripts\Indicators\CollectionBehavior.cs" />
+     <Compile Include="Assets\Scripts\Indicators\FoodBuffBehavior.cs" />
      <Compile Include="Assets\Scripts\TaskLocations\CauldronBehavior.cs" />
      <Compile Include="Assets\Scripts\TaskLocations\CropPadBehavior.cs" />
      <Compile Include="Assets\Scripts\TaskLocations\MealTrayBehavior.cs" />
@@ -64,11 +65,17 @@
      <Compile Include="Assets\Scripts\Utilities.cs" />
      <Compile Include="Assets\Stock_item_Script.cs" />
      <Compile Include="Assets\crop_indicator_Script.cs" />
+ <Reference Include="UnityEngine.Advertisements">
+ <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/Advertisements/UnityEngine.Advertisements.dll</HintPath>
+ </Reference>
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Networking">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.Analytics">
+ <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
  </Reference>
  <Reference Include="Mono.Cecil">
  <HintPath>C:/Program Files/Unity/Editor/Data/Managed/Mono.Cecil.dll</HintPath>

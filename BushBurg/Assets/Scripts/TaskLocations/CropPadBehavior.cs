@@ -20,7 +20,6 @@ public class CropPadBehavior : MonoBehaviour {
 	public void SetCrop(Utilities.CropTypes crop_in)
 	{
 		cropType = crop_in;
-        
 	}
 
 

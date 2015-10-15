@@ -6,24 +6,23 @@ using System.Collections.Generic;
 
 public class Progress : MonoBehaviour
 {
-    public CitizenBehavior citizenscriptvariable;
-    //public CitizenManager_Script citizenManager;
 
-    public Utilities.Attributes maxAttributes;
-    public Utilities.CropTypes cropType;
+    Dictionary<Utilities.Attributes, int> maxAttributes;
+    Dictionary<Utilities.Attributes, float> currentAttributes;
 
+    
     void Start()
 
     {
-        //CitizenBehavior citizenscriptvariable = (CitizenBehavior) maxAttributes;
-        //citizenscriptvariable = GameObject.Find("CitizenBehavior").GetComponent<CitizenBehavior>();
-        //citizenManager = GameObject.Find("CitizenManager").GetComponent<CitizenManager_Script>();
+        Awake();
     }
 
 
     void Awake()
 
     {
+        maxAttributes = new Dictionary<Utilities.Attributes, int>();
+        currentAttributes = new Dictionary<Utilities.Attributes, float>();
         CurrentCitizenAttributeUpdate();
     }
 
@@ -31,9 +30,10 @@ public class Progress : MonoBehaviour
     void CurrentCitizenAttributeUpdate()
 
     {
+        int currentValue = 1;
+        print(maxAttributes.TryGetValue(Utilities.Attributes.Health, out currentValue));
+        print(currentValue);
 
-       // print(maxAttributes[Utilities.Attributes.Health] + " updated on progress.cs");
-        
         //print(currentValue = [Utilities.Attributes.Health]);
 
     }

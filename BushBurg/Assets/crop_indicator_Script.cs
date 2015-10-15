@@ -7,16 +7,11 @@ public class crop_indicator_Script : MonoBehaviour {
     
     // Use this for initialization
 	void Awake () {
-       
-        // selectedCrop = GameObject.Find("DraggableCrop").GetComponent<CropBehavior>();
+       // selectedCrop = GameObject.Find("DraggableCrop").GetComponent<CropBehavior>();
 	}
 	
 	// Update is called once per frame
-	void Update () 
-    {
-       
+	void Update () {
+       // Utilities.SetCropTexture(this.gameObject.transform.GetChild(5).gameObject, selectedCrop);
 	}
-    public void SetTexture (Utilities.CropTypes crop_in){ 
-       // Utilities.SetCropTexture(this.gameObject, crop_in);
-    }
 }

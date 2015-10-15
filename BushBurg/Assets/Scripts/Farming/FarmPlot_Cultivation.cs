@@ -233,7 +233,6 @@ public class FarmPlot_Cultivation : MonoBehaviour {
 		maxProductionTime = newCrop.timeToProduce/Utilities.TIMESCALE;
 		timeToProduce = maxProductionTime;
 
-        //GameObject.Find("CurrentPlot_CropSlot").GetComponent<crop_indicator_Script>().SetTexture(newCrop);
 		print (newCrop.name);
 
 		if (slot1Citizen != null)
@@ -249,7 +248,8 @@ public class FarmPlot_Cultivation : MonoBehaviour {
 		}
 
 		Utilities.SetCropTexture(this.gameObject.transform.GetChild (1).gameObject, crop_in);
-		//print (plantedCrop);
+        Utilities.SetCropTexture(GameObject.Find("CurrentPlot_CropSlot").gameObject, crop_in);
+        //print (plantedCrop);
 	}
 
 }

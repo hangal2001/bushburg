@@ -18,8 +18,11 @@ public class GameController_Script : MonoBehaviour {
 
 	public Utilities.ColorModes colorMode {get; private set;}
 	int modeCounter;
+	public int level {get; private set;}
 
 	public int currentMoney{get; private set;}
+
+	GameObject[] stocks;
 
 	// Use this for initialization
 	void Start () 
@@ -28,7 +31,7 @@ public class GameController_Script : MonoBehaviour {
 		citizenManager = GameObject.Find ("CitizenManager").GetComponent<CitizenManager_Script>();
 		storageBehavior = GameObject.Find ("Storage").GetComponent<StorageBehavior>();
 
-		LevelUp ();
+
 
 		modeCounter = 0;
 		currentMoney = 0;
@@ -37,6 +40,25 @@ public class GameController_Script : MonoBehaviour {
 		//wanted it out of the way because it's a lot of lines
 		CropsAndBuffs.GenerateCropList ();
 		CropsAndBuffs.GenerateBuffList ();
+
+
+
+		//THIS CURRENTLY GETS AN ARRAY OF STOCK OBJECTS TO DISABLE THEM DEPENDING ON LEVEL
+		GameObject stock = GameObject.Find ("Storage").transform.GetChild (0).gameObject;
+		stocks = new GameObject[20];
+		for (int c=2; c < 22; c++)
+		{
+			stocks[c-2] = GameObject.Find ("Storage").transform.GetChild (0).GetChild (c).gameObject;
+
+			if (c > 4)
+			{
+				stocks[c-2].SetActive (false);
+			}
+		}
+
+		//print (stocks[15]);
+
+		LevelUp ();
 	}
 
 	void Awake()
@@ -51,6 +73,7 @@ public class GameController_Script : MonoBehaviour {
 	void Update () 
 	{
 		GetInput ();
+		//print (stocks[15]);
 	}
 
 	void GetInput()
@@ -186,9 +209,53 @@ public class GameController_Script : MonoBehaviour {
 
 	void LevelUp()
 	{
-		plotManager.LevelUp ();
-		citizenManager.LevelUp ();
+		if (level < 9)
+		{
+			plotManager.LevelUp ();
+			citizenManager.LevelUp ();
+			level++;
+		}
 
+		switch(level)
+		{
+		case 1:
+			break;
+		case 2:
+			print ("hi");
+			stocks[3].SetActive (true);
+			stocks[4].SetActive (true);
+			stocks[5].SetActive (true);
+			print ("hi");
+			break;
+		case 3:
+			stocks[6].SetActive (true);
+			stocks[7].SetActive (true);
+			stocks[8].SetActive (true);
+			break;
+		case 4:
+			stocks[9].SetActive (true);
+			stocks[10].SetActive (true);
+			stocks[11].SetActive(true);
+			break;
+		case 5:
+			stocks[12].SetActive (true);
+			stocks[13].SetActive(true);
+			break;
+		case 6:
+			stocks[14].SetActive(true);
+			stocks[15].SetActive (true);
+			break;
+		case 7:
+			stocks[16].SetActive (true);
+			stocks[17].SetActive (true);
+			break;
+		case 8:
+			stocks[18].SetActive (true);
+			stocks[19].SetActive (true);
+			break;
+
+		}
+		//print (stocks[15]);
 	}
 
 	void UpdateMode()

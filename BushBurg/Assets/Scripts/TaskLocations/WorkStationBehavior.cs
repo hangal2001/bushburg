@@ -70,7 +70,6 @@ public class WorkStationBehavior : MonoBehaviour {
 			secondaryEff = Utilities.Attributes.None;
 			primaryQual = Utilities.Attributes.None;
 			secondaryQual = Utilities.Attributes.None;
-			fatigueRate = 1;
 		}
 		else if (stationType == Utilities.WorkStations.Cauldron)
 		{
@@ -95,6 +94,7 @@ public class WorkStationBehavior : MonoBehaviour {
 		timeToProduce = 0;
 		timeModifier = 0;
 		timeToAutoCollect = 0;
+		fatigueRate = 1;
 
 		currentBuff.buffType = Utilities.BuffTypes.None;
 	}
@@ -195,7 +195,6 @@ public class WorkStationBehavior : MonoBehaviour {
 			currentCitizen.GetComponent<CitizenBehavior>().Feed(recoveryRestore, currentBuff);
 
 			isActive = false;
-			fatigueRate = 1;
 
 		}
 		else if (stationType == Utilities.WorkStations.Cauldron)
@@ -296,7 +295,7 @@ public class WorkStationBehavior : MonoBehaviour {
 
 		if (stationType == Utilities.WorkStations.Cauldron)
 		{
-			fatigueRate = newCrop.fatigueRate/Utilities.COOKTIMERATIO;
+			//fatigueRate = newCrop.fatigueRate/Utilities.COOKTIMERATIO;
 			maxProductionTime = newCrop.timeToProduce*Utilities.COOKTIMERATIO/(Utilities.TIMESCALE);
 			timeToProduce = maxProductionTime;
 		}
@@ -322,7 +321,7 @@ public class WorkStationBehavior : MonoBehaviour {
 		else if (stationType == Utilities.WorkStations.Depot)
 		{
 
-			fatigueRate = newCrop.fatigueRate/Utilities.TRADETIMERATIO;
+			//fatigueRate = newCrop.fatigueRate/Utilities.TRADETIMERATIO;
 			maxProductionTime = newCrop.timeToProduce*Utilities.TRADETIMERATIO/(Utilities.TIMESCALE);
 			timeToProduce = maxProductionTime;
 		}

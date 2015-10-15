@@ -18,7 +18,9 @@ public class Stock_item_Script : MonoBehaviour
 
     StorageBehavior storage;
     int numCrops;
+    string temp_numCrops = "";
     //public Utilities.CropTypes cropType;
+    public TextMesh[] subTexts;
 
     // Use this for initialization
     void Awake()
@@ -26,6 +28,7 @@ public class Stock_item_Script : MonoBehaviour
         //these two will never change because there is only 1 instance of them
         gameController = GameObject.Find("GameController").GetComponent<GameController_Script>();
         storage = GameObject.Find("Storage").GetComponent<StorageBehavior>();
+
     }
 
     // Update is called once per frame
@@ -41,6 +44,8 @@ public class Stock_item_Script : MonoBehaviour
         //attributes will not need a .Count because they are floats or ints
         numCrops = storage.crops[cropType].Count;
         print(numCrops);
+        //temp_numCrops = numCrops.ToString();
+        //subTexts[1].text = temp_numCrops;
 
     }
 
