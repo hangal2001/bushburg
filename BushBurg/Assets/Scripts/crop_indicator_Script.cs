@@ -6,6 +6,7 @@ public class crop_indicator_Script : MonoBehaviour {
     public Utilities.CropTypes cropType { get; private set; }
     
     // Use this for initialization
+    ///test
 	void Awake () {
        // selectedCrop = GameObject.Find("DraggableCrop").GetComponent<CropBehavior>();
 	}
