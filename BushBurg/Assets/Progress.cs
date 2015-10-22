@@ -34,7 +34,7 @@ public class Progress : MonoBehaviour
         print(maxAttributes.TryGetValue(Utilities.Attributes.Health, out currentValue));
         print(currentValue);
 
-        //print(currentValue = [Utilities.Attributes.Health]);
+        print(currentValue = [Utilities.Attributes.Health]);
 
     }
 

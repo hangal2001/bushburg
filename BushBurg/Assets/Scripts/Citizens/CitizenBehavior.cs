@@ -525,7 +525,6 @@ public class CitizenBehavior : MonoBehaviour
     {
         //updating slider values.
         GameObject.Find("Health_slider").GetComponent<Slider>().value = currentAttributes[Utilities.Attributes.Health];
-        //GameObject.Find("Health_slider").GetComponent<Slider>().maximumValue = maxAttributes[Utilities.Attributes.Health];
         GameObject.Find("Strength_slider").GetComponent<Slider>().value = currentAttributes[Utilities.Attributes.Strength];
         GameObject.Find("Dexterity_slider").GetComponent<Slider>().value = currentAttributes[Utilities.Attributes.Dexterity];
         GameObject.Find("Endurance_slider").GetComponent<Slider>().value = currentAttributes[Utilities.Attributes.Endurance];

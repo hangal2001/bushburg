@@ -44,8 +44,8 @@ public class Stock_item_Script : MonoBehaviour
         //attributes will not need a .Count because they are floats or ints
         numCrops = storage.crops[cropType].Count;
         print(numCrops);
-        //temp_numCrops = numCrops.ToString();
-        //subTexts[1].text = temp_numCrops;
+        temp_numCrops = numCrops.ToString();
+        subTexts[1].text = temp_numCrops;
 
     }
 
