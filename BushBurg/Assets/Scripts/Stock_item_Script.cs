@@ -28,7 +28,7 @@ public class Stock_item_Script : MonoBehaviour
         //these two will never change because there is only 1 instance of them
         gameController = GameObject.Find("GameController").GetComponent<GameController_Script>();
         storage = GameObject.Find("Storage").GetComponent<StorageBehavior>();
-
+        this.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -42,19 +42,23 @@ public class Stock_item_Script : MonoBehaviour
         //this particular value type is a list itself because of varying quality of ingredients
         //you just need the total #, which is accessed by .Count as part of the List<> library
         //attributes will not need a .Count because they are floats or ints
+            
+    }
+
+    void LateUpdate()
+    {
         numCrops = storage.crops[cropType].Count;
         print(numCrops);
         temp_numCrops = numCrops.ToString();
         subTexts[0].text = cropType.ToString();
-        subTexts[1].text = temp_numCrops;
+        subTexts[1].text = temp_numCrops;   
         //applying texture to icon
-        Renderer[] renderers = transform.GetChild(0).GetComponentsInChildren<Renderer>();
-        foreach (Renderer r in renderers)
-        {
-            Texture newTexture = Resources.Load("Crops/" + cropType.ToString()) as Texture;
-            r.material.mainTexture = newTexture;
-        }
-       
+            Renderer[] renderers = transform.GetChild(0).GetComponentsInChildren<Renderer>();
+            foreach (Renderer r in renderers)
+            {
+                Texture newTexture = Resources.Load("Crops/" + cropType.ToString()) as Texture;
+                r.material.mainTexture = newTexture;
+            }
     }
 
     public void SetCrop(Utilities.CropTypes crop_in)

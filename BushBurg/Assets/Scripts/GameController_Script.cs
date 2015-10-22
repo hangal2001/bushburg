@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GameController_Script : MonoBehaviour {
 
@@ -10,7 +11,7 @@ public class GameController_Script : MonoBehaviour {
 
 	PlotManager_Script plotManager;
 	CitizenManager_Script citizenManager;
-	StorageBehavior storageBehavior;
+	StorageBehavior storageBehavior, stockItems;
 	
 	public GameObject selectedCitizen{get; private set;}
 	public GameObject selectedTask{get; private set;}
@@ -22,8 +23,7 @@ public class GameController_Script : MonoBehaviour {
 
 	public int currentMoney{get; private set;}
 
-	GameObject[] stocks;
-    GameObject[] stockitems;
+    public GameObject[] stocks;
 
 	// Use this for initialization
 	void Start () 
@@ -33,7 +33,6 @@ public class GameController_Script : MonoBehaviour {
 		storageBehavior = GameObject.Find ("Storage").GetComponent<StorageBehavior>();
 
 
-
 		modeCounter = 0;
 		currentMoney = 0;
 
@@ -41,21 +40,7 @@ public class GameController_Script : MonoBehaviour {
 		//wanted it out of the way because it's a lot of lines
 		CropsAndBuffs.GenerateCropList ();
 		CropsAndBuffs.GenerateBuffList ();
-
-
-
-		//THIS CURRENTLY GETS AN ARRAY OF STOCK OBJECTS TO DISABLE THEM DEPENDING ON LEVEL
-		GameObject stock = GameObject.Find ("Storage").transform.GetChild (0).gameObject;
-		stocks = new GameObject[20];
-		for (int c=2; c < 22; c++)
-		{
-			stocks[c-2] = GameObject.Find ("Storage").transform.GetChild (0).GetChild (c).gameObject;
-
-			if (c > 4)
-			{
-				stocks[c-2].SetActive (false);
-			}
-		}
+       
 
 		//print (stocks[15]);
 
@@ -64,9 +49,6 @@ public class GameController_Script : MonoBehaviour {
 
 	void Awake()
 	{
-
-
-
 
 	}
 	
@@ -222,38 +204,61 @@ public class GameController_Script : MonoBehaviour {
 		case 1:
 			break;
 		case 2:
-			print ("hi");
 			stocks[3].SetActive (true);
 			stocks[4].SetActive (true);
 			stocks[5].SetActive (true);
-			print ("hi");
+
+            storageBehavior.enableCrop(3);
+            storageBehavior.enableCrop(4);
+            storageBehavior.enableCrop(5);
+            
 			break;
 		case 3:
 			stocks[6].SetActive (true);
 			stocks[7].SetActive (true);
 			stocks[8].SetActive (true);
+
+            storageBehavior.enableCrop(6);
+            storageBehavior.enableCrop(7);
+            storageBehavior.enableCrop(8);
+
 			break;
 		case 4:
 			stocks[9].SetActive (true);
 			stocks[10].SetActive (true);
 			stocks[11].SetActive(true);
+
+            storageBehavior.enableCrop(9);
+            storageBehavior.enableCrop(10);
+            storageBehavior.enableCrop(11);
+
 			break;
 		case 5:
 			stocks[12].SetActive (true);
 			stocks[13].SetActive(true);
+
+            storageBehavior.enableCrop(12);
+            storageBehavior.enableCrop(13);
+
 			break;
 		case 6:
 			stocks[14].SetActive(true);
 			stocks[15].SetActive (true);
-			break;
+			storageBehavior.enableCrop(14);
+            storageBehavior.enableCrop(15);
+            break;
 		case 7:
 			stocks[16].SetActive (true);
 			stocks[17].SetActive (true);
-			break;
+			storageBehavior.enableCrop(16);
+            storageBehavior.enableCrop(17);
+            break;
 		case 8:
 			stocks[18].SetActive (true);
 			stocks[19].SetActive (true);
-			break;
+			storageBehavior.enableCrop(18);
+            storageBehavior.enableCrop(19);
+            break;
 
 		}
 		//print (stocks[15]);

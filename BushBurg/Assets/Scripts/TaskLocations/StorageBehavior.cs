@@ -14,7 +14,9 @@ public class StorageBehavior : MonoBehaviour {
 
 	public float offsetX, offsetZ;
 	public float multiplierX, multiplierZ;
-	
+
+    GameController_Script gamecontroller;
+
 	public Dictionary<Utilities.CropTypes, List<float>> crops;
 
 	// Use this for initialization
@@ -23,7 +25,7 @@ public class StorageBehavior : MonoBehaviour {
 		cropPads = new List<GameObject>();
         stockItems = new List<GameObject>();
 		crops = new Dictionary<Utilities.CropTypes, List<float>>();
-
+        gamecontroller = GameObject.Find("GameController").GetComponent<GameController_Script>();
 		BuildEmptyStorage();
 
 		for (int c=1; c < NUMCROPS; c++)
@@ -32,10 +34,18 @@ public class StorageBehavior : MonoBehaviour {
 			GameObject nextPad = Instantiate(cropPadPrefab, transform.position+nextLoc, Quaternion.identity) as GameObject;
 			nextPad.GetComponent<CropPadBehavior>().SetCrop((Utilities.CropTypes)c);
 			cropPads.Add (nextPad);
+            nextPad.SetActive(false);
             GameObject item = Instantiate(stockItemsPrefab, transform.position + nextLoc, Quaternion.Euler(90, 0, 0)) as GameObject;
             item.GetComponent<Stock_item_Script>().SetCrop((Utilities.CropTypes)c);
             stockItems.Add(item);
+            gamecontroller.stocks[c-1] = item;
 		}
+        cropPads[0].SetActive(true);
+        cropPads[1].SetActive(true);
+        cropPads[2].SetActive(true);
+        gamecontroller.stocks[0].SetActive(true);
+        gamecontroller.stocks[1].SetActive(true);
+        gamecontroller.stocks[2].SetActive(true);
 	}
 	
 	// Update is called once per frame
@@ -103,9 +113,16 @@ public class StorageBehavior : MonoBehaviour {
 
 	void BuildEmptyStorage()
 	{
-		for (int c=0; c < NUMCROPS; c++)
+        gamecontroller.stocks = new GameObject[NUMCROPS];
+
+        for (int c=0; c < NUMCROPS; c++)
 		{
 			crops.Add ((Utilities.CropTypes)c, new List<float>());
 		}
 	}
+
+     public void enableCrop(int crop_in){
+
+         cropPads[crop_in].SetActive(true);
+    }
 }
