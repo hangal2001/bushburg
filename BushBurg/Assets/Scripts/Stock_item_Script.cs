@@ -45,8 +45,16 @@ public class Stock_item_Script : MonoBehaviour
         numCrops = storage.crops[cropType].Count;
         print(numCrops);
         temp_numCrops = numCrops.ToString();
+        subTexts[0].text = cropType.ToString();
         subTexts[1].text = temp_numCrops;
-
+        //applying texture to icon
+        Renderer[] renderers = transform.GetChild(0).GetComponentsInChildren<Renderer>();
+        foreach (Renderer r in renderers)
+        {
+            Texture newTexture = Resources.Load("Crops/" + cropType.ToString()) as Texture;
+            r.material.mainTexture = newTexture;
+        }
+       
     }
 
     public void SetCrop(Utilities.CropTypes crop_in)
@@ -54,14 +62,6 @@ public class Stock_item_Script : MonoBehaviour
         cropType = crop_in;
     }
 
-
-    public GameObject CreateDraggableCrop(Vector3 location_in)
-    {
-        GameObject newDraggableCrop = Instantiate(cropPrefab, location_in, Quaternion.identity) as GameObject;
-        newDraggableCrop.GetComponent<CropBehavior>().CreateCrop(cropType, Utilities.ItemTypes.Seed, this.gameObject, 0, 0);
-
-        return newDraggableCrop;
-    }
 
     //this function will set the script references from the gamecontroller's selected items
     //doing this in update is technically a bad idea for performance reasons but it is not super likely

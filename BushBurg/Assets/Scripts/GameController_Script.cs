@@ -23,6 +23,7 @@ public class GameController_Script : MonoBehaviour {
 	public int currentMoney{get; private set;}
 
 	GameObject[] stocks;
+    GameObject[] stockitems;
 
 	// Use this for initialization
 	void Start () 

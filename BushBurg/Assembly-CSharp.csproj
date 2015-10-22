@@ -45,7 +45,6 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Progress.cs" />
      <Compile Include="Assets\Scripts\Citizens\CitizenBehavior.cs" />
      <Compile Include="Assets\Scripts\Citizens\CitizenManager_Script.cs" />
      <Compile Include="Assets\Scripts\CropsAndBuffs.cs" />
@@ -55,6 +54,8 @@
      <Compile Include="Assets\Scripts\GameController_Script.cs" />
      <Compile Include="Assets\Scripts\Indicators\CollectionBehavior.cs" />
      <Compile Include="Assets\Scripts\Indicators\FoodBuffBehavior.cs" />
+     <Compile Include="Assets\Scripts\Progress.cs" />
+     <Compile Include="Assets\Scripts\Stock_item_Script.cs" />
      <Compile Include="Assets\Scripts\TaskLocations\CauldronBehavior.cs" />
      <Compile Include="Assets\Scripts\TaskLocations\CropPadBehavior.cs" />
      <Compile Include="Assets\Scripts\TaskLocations\MealTrayBehavior.cs" />
@@ -63,8 +64,7 @@
      <Compile Include="Assets\Scripts\TaskLocations\TableBehavior.cs" />
      <Compile Include="Assets\Scripts\TaskLocations\WorkStationBehavior.cs" />
      <Compile Include="Assets\Scripts\Utilities.cs" />
-     <Compile Include="Assets\Stock_item_Script.cs" />
-     <Compile Include="Assets\crop_indicator_Script.cs" />
+     <Compile Include="Assets\Scripts\crop_indicator_Script.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

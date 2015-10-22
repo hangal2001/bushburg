@@ -7,8 +7,10 @@ public class StorageBehavior : MonoBehaviour {
 	static int NUMCROPS = 21;
 
 	public GameObject cropPadPrefab;
+    public GameObject stockItemsPrefab;
 
 	public List<GameObject> cropPads{get; private set;}
+    public List<GameObject> stockItems { get; private set; }
 
 	public float offsetX, offsetZ;
 	public float multiplierX, multiplierZ;
@@ -19,6 +21,7 @@ public class StorageBehavior : MonoBehaviour {
 	void Start () 
 	{
 		cropPads = new List<GameObject>();
+        stockItems = new List<GameObject>();
 		crops = new Dictionary<Utilities.CropTypes, List<float>>();
 
 		BuildEmptyStorage();
@@ -29,6 +32,9 @@ public class StorageBehavior : MonoBehaviour {
 			GameObject nextPad = Instantiate(cropPadPrefab, transform.position+nextLoc, Quaternion.identity) as GameObject;
 			nextPad.GetComponent<CropPadBehavior>().SetCrop((Utilities.CropTypes)c);
 			cropPads.Add (nextPad);
+            GameObject item = Instantiate(stockItemsPrefab, transform.position + nextLoc, Quaternion.Euler(90, 0, 0)) as GameObject;
+            item.GetComponent<Stock_item_Script>().SetCrop((Utilities.CropTypes)c);
+            stockItems.Add(item);
 		}
 	}
 	
