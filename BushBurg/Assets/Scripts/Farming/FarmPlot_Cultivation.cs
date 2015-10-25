@@ -30,10 +30,10 @@ public class FarmPlot_Cultivation : MonoBehaviour {
 	public Utilities.Attributes secondaryQual{get; private set;}
 	public float fatigueRate{get; private set;}
 
-	float timeModifier;
+	public float timeModifier { get; private set; }
 	float maxProductionTime;
-	float timeToProduce;
-	float timeToAutoCollect;
+	public float timeToProduce { get; private set; }
+    float timeToAutoCollect;
 	GameObject currentProduce;
 
 	void Awake()
@@ -129,26 +129,19 @@ public class FarmPlot_Cultivation : MonoBehaviour {
 		}
 	}
 
+    public float ConvertedTimeModifier()
+    {
+        return (1 / (1 - timeModifier));
+    }
 	//Produce a new crop
 	void Produce()
 	{
 
 		if (timeToProduce < 0)
 		{
-			float quality = 0;
-			
-			if (slot1Citizen != null)
-			{
-				quality += slot1Citizen.GetComponent<CitizenBehavior>().GetQuality();
-			}
-			
-			if (slot2Citizen != null)
-			{
-				quality += slot2Citizen.GetComponent<CitizenBehavior>().GetQuality ();
-			}
-			
-			quality /= 30;
 
+            float quality = GetQuality();
+			
 			GameObject newDraggableCrop = Instantiate(cropPrefab, producePosition, Quaternion.identity) as GameObject;
 			newDraggableCrop.GetComponent<CropBehavior>().CreateCrop(cropType, Utilities.ItemTypes.Crop, this.gameObject, quality, 0);
 
@@ -157,6 +150,25 @@ public class FarmPlot_Cultivation : MonoBehaviour {
 			timeToAutoCollect = maxProductionTime/3f;
 		}
 	}
+
+    public float GetQuality()
+    {
+        float quality = 0;
+
+        if (slot1Citizen != null)
+        {
+            quality += slot1Citizen.GetComponent<CitizenBehavior>().GetQuality();
+        }
+
+        if (slot2Citizen != null)
+        {
+            quality += slot2Citizen.GetComponent<CitizenBehavior>().GetQuality();
+        }
+
+        quality /= 30;
+
+        return quality;
+    }
 
 	//Positions an accepted citizen into a slot
 	//the check for a full field is a different function
@@ -233,7 +245,7 @@ public class FarmPlot_Cultivation : MonoBehaviour {
 		maxProductionTime = newCrop.timeToProduce/Utilities.TIMESCALE;
 		timeToProduce = maxProductionTime;
 
-		print (newCrop.name);
+		//print (newCrop.name);
 
 		if (slot1Citizen != null)
 		{
@@ -248,7 +260,10 @@ public class FarmPlot_Cultivation : MonoBehaviour {
 		}
 
 		Utilities.SetCropTexture(this.gameObject.transform.GetChild (1).gameObject, crop_in);
-        Utilities.SetCropTexture(GameObject.Find("CurrentPlot_CropSlot").gameObject, crop_in);
+
+        if (gameController.selectedTask == this.gameObject)
+            GameObject.Find("Current_Task_UI").GetComponent<CurrentTaskUI_Script>().SetTask();
+        //Utilities.SetCropTexture(GameObject.Find("CurrentPlot_CropSlot").gameObject, crop_in);
         //print (plantedCrop);
 	}
 

@@ -19,7 +19,7 @@ public class CitizenManager_Script : MonoBehaviour {
 	// Use this for initialization
 	void Start () 
 	{
-
+        LevelUp();
 	}
 
 	void Awake()

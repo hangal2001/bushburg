@@ -29,13 +29,13 @@ public class CitizenBehavior : MonoBehaviour
 	  currentAttribute = dictName[Utilities.Attributes.Strength];
 
 	 */
-    public Dictionary<Utilities.Attributes, int> maxAttributes;
+    public Dictionary<Utilities.Attributes, float> maxAttributes;
     public Dictionary<Utilities.Attributes, float> currentAttributes;
 
 	public GameObject selectedIndicator;	//child object of each citizen, active if selected
 	public GameObject buffIndicator;
 	ParticleSystem buffParticles;
-	float buffDurationLeft;
+	//float buffDurationLeft;
 	
 	Renderer render;	//for color management
 
@@ -50,7 +50,8 @@ public class CitizenBehavior : MonoBehaviour
 	float fatigueRate;
 	public bool isActive{get; private set;}
 
-	CropsAndBuffs.Buff currentBuff;
+    public CropsAndBuffs.Buff currentBuff;
+    public Utilities.CropTypes buffCropType { get; private set; }
 
 	public float fitness{get; private set;} //used by tasks to calculate progression speed
 
@@ -62,7 +63,7 @@ public class CitizenBehavior : MonoBehaviour
 		Unbuff();
 		canMove = true;
 
-		maxAttributes = new Dictionary<Utilities.Attributes, int>();
+		maxAttributes = new Dictionary<Utilities.Attributes, float>();
 		currentAttributes = new Dictionary<Utilities.Attributes, float>();
 		GenerateRandomAttributes ();
 
@@ -90,7 +91,7 @@ public class CitizenBehavior : MonoBehaviour
 	void LateUpdate()
 	{
 		AdjustColors();
-        UpdateCurrentCitizenAttributeValues(); // update UI slider Attributes
+        //UpdateCurrentCitizenAttributeValues(); // update UI slider Attributes
 	}
 
 	//+++++++Core Every-Frame Functions++++++//
@@ -115,10 +116,11 @@ public class CitizenBehavior : MonoBehaviour
 
 		if (currentBuff.buffType != Utilities.BuffTypes.None)
 		{
-			if (buffDurationLeft > 0)
+			if (currentBuff.duration > 0)
 			{
-				buffDurationLeft -= Time.deltaTime;
-				buffParticles.startSize = Mathf.Min (.9f, Mathf.Max (buffDurationLeft/currentBuff.duration, .1f));
+				currentBuff.duration -= Time.deltaTime*Utilities.TIMESCALE;
+				buffParticles.startSize = Mathf.Min (.9f, Mathf.Max (currentBuff.duration/currentBuff.maxDuration, .1f));
+                BuffFilter();
 			}
 			else
 			{
@@ -127,22 +129,65 @@ public class CitizenBehavior : MonoBehaviour
 		}
 	}
 
-	void Fatigue()
+    void BuffFilter()
+    {
+        float currentRecovery = (Time.deltaTime / maxAttributes[Utilities.Attributes.Recovery]) * FATIGUESCALE * (Mathf.Ceil(currentAttributes[Utilities.Attributes.Recovery]));
+        float currentFatigue = Time.deltaTime * FATIGUESCALE * fatigueRate;
+        float currentAtt = currentAttributes[currentBuff.attribute];
+        float difference = 0f;
+
+        if (currentBuff.buffType == Utilities.BuffTypes.Recovery)
+        {
+            difference = currentRecovery * (currentBuff.value / 100);
+            currentAtt = Mathf.Min(currentAtt + difference, maxAttributes[currentBuff.attribute]);
+        }
+        else if (currentBuff.buffType == Utilities.BuffTypes.Drain)
+        {
+            difference = currentFatigue * (currentBuff.value / 100);
+            currentAtt = Mathf.Min(currentAtt + difference, maxAttributes[currentBuff.attribute]);
+        }
+        else if (currentBuff.buffType == Utilities.BuffTypes.AttributeScalar)
+        {
+            //probably won't do anything
+
+        }
+        else if (currentBuff.buffType == Utilities.BuffTypes.AttributeLockPositive)//positive = food buff
+        {
+            if (currentAttributes[currentBuff.attribute] < currentBuff.value)
+                currentAttributes[currentBuff.attribute] = currentBuff.value;
+
+        }
+        else if (currentBuff.buffType == Utilities.BuffTypes.AttributeLockNegative)//negative = debuff
+        {
+            //debuffs not here yet
+
+        }
+
+        //if (gameController.selectedCitizen == this.gameObject)
+        //print ("buffing " + currentBuff.attribute + " type " + currentBuff.buffType + " base rec: " + currentRecovery + " base fat: " + currentFatigue + " value: " + currentBuff.value + " buffdifference: " + difference);
+
+        //if (gameController.selectedCitizen == this.gameObject)
+            //print(Utilities.GenerateBuffText(currentBuff));
+    }
+
+    void Fatigue()
 	{
 		//if (gameController.selectedCitizen == this.gameObject)
 			//print ("dex: " + currentAttributes[Utilities.Attributes.Dexterity] + " str: " + currentAttributes[Utilities.Attributes.Strength] + " end: " + currentAttributes[Utilities.Attributes.Recovery]);
 
-		float currentRecovery = Mathf.Ceil (currentAttributes[Utilities.Attributes.Recovery])/10;
-		float adjustment = Time.deltaTime * FATIGUESCALE * fatigueRate;
+		float currentRecovery = (Time.deltaTime/maxAttributes[Utilities.Attributes.Recovery]) * FATIGUESCALE * (Mathf.Ceil (currentAttributes[Utilities.Attributes.Recovery]));
+		float currentFatigue = Time.deltaTime * FATIGUESCALE * fatigueRate;
 
-		//if (primaryEff == Utilities.Attributes.None || (currentSlot.tag == "WorkStation" && !currentSlot.GetComponent<WorkStationBehavior>().isActive))
+        //if (gameController.selectedCitizen == this.gameObject)
+            //print("rate : " + fatigueRate + " scale: " + FATIGUESCALE + " curfat: " + currentFatigue + "currec: " + currentRecovery);
+
 		if (!isActive || primaryEff == Utilities.Attributes.None)
 		{
 			for(int c=4; c < 10; c++)
 			{
 				float currentAtt = currentAttributes[(Utilities.Attributes)c];
 
-				currentAttributes[(Utilities.Attributes)c] = Mathf.Min (currentAtt + currentRecovery*adjustment, maxAttributes[(Utilities.Attributes)c]);
+				currentAttributes[(Utilities.Attributes)c] = Mathf.Min (currentAtt + currentRecovery, maxAttributes[(Utilities.Attributes)c]);
 			}
 		}
 		else
@@ -152,14 +197,14 @@ public class CitizenBehavior : MonoBehaviour
 				//fatigue stats
 				if ((Utilities.Attributes)c == primaryEff || (Utilities.Attributes)c == primaryQual)
 				{
-					currentAttributes[(Utilities.Attributes)c] = Mathf.Max (currentAttributes[(Utilities.Attributes)c] - adjustment, 0);
+					currentAttributes[(Utilities.Attributes)c] = Mathf.Max (currentAttributes[(Utilities.Attributes)c] - currentFatigue, 0);
 				}
 				//recovery stats
 				else if (((Utilities.Attributes)c != secondaryEff || (Utilities.Attributes)c != secondaryQual))
 				{
 					float currentAtt = currentAttributes[(Utilities.Attributes)c];
 
-					currentAttributes[(Utilities.Attributes)c] = Mathf.Min (currentAtt + currentRecovery*adjustment, maxAttributes[(Utilities.Attributes)c]);
+					currentAttributes[(Utilities.Attributes)c] = Mathf.Min (currentAtt + currentRecovery, maxAttributes[(Utilities.Attributes)c]);
 				}
 			}
 		}
@@ -276,25 +321,28 @@ public class CitizenBehavior : MonoBehaviour
 	//+++++++Task Functions++++++//
 
 
-	public void Feed(float amount, CropsAndBuffs.Buff buff_in)
+	public void Feed(float amount, CropsAndBuffs.Buff buff_in, Utilities.CropTypes cropType_in)
 	{
-		//print ("old amount: " + currentAttributes[Utilities.Attributes.Recovery]);
-		
-		currentAttributes[Utilities.Attributes.Recovery] = Mathf.Min (currentAttributes[Utilities.Attributes.Recovery]+amount, 10);
-		currentBuff = buff_in;
-		
-		if (currentBuff.buffType != Utilities.BuffTypes.None)
-		{
-			buffIndicator.SetActive (true);
-			buffDurationLeft = currentBuff.duration;
-			//print (currentBuff.name + " duration: " + currentBuff.duration + " value: " + currentBuff.value);
-		}
-		else
-		{
-			//print ("NO BUFF");
-		}
-		//print ("new amount: " + currentAttributes[Utilities.Attributes.Recovery]);
-	}
+        //print ("old amount: " + currentAttributes[Utilities.Attributes.Recovery]);
+        if (buff_in.buffType != Utilities.BuffTypes.None)
+        {
+            currentBuff = buff_in;
+            buffCropType = cropType_in;
+            ApplyBuff(currentBuff);
+
+        }
+
+        currentAttributes[Utilities.Attributes.Recovery] = Mathf.Min (currentAttributes[Utilities.Attributes.Recovery]+amount, 10);
+
+
+        //change buff in ui if needed
+        if (gameController.selectedCitizen == this.gameObject)
+            GameObject.Find("Current_Buff_UI").GetComponent<CurrentBuffUI_Script>().SetBuff();
+
+
+        //print ("new amount: " + currentAttributes[Utilities.Attributes.Recovery]);
+    }
+
 
 	public void SetTaskAttributes(Utilities.Attributes pEff_in, Utilities.Attributes sEff_in, Utilities.Attributes pQual_in, Utilities.Attributes sQual_in, float fatigue_in)
 	{
@@ -520,31 +568,6 @@ public class CitizenBehavior : MonoBehaviour
 		selectedTask = gameController.GetComponent<GameController_Script>().selectedTask;
 	}
 
-    //update selected citizen 
-    void UpdateCurrentCitizenAttributeValues ()
-    {
-        //updating slider values.
-        GameObject.Find("Health_slider").GetComponent<Slider>().value = currentAttributes[Utilities.Attributes.Health];
-        GameObject.Find("Strength_slider").GetComponent<Slider>().value = currentAttributes[Utilities.Attributes.Strength];
-        GameObject.Find("Dexterity_slider").GetComponent<Slider>().value = currentAttributes[Utilities.Attributes.Dexterity];
-        GameObject.Find("Endurance_slider").GetComponent<Slider>().value = currentAttributes[Utilities.Attributes.Endurance];
-        GameObject.Find("Acumen_slider").GetComponent<Slider>().value = currentAttributes[Utilities.Attributes.Acumen];
-        GameObject.Find("Focus_slider").GetComponent<Slider>().value = currentAttributes[Utilities.Attributes.Focus];
-        GameObject.Find("Perception_slider").GetComponent<Slider>().value = currentAttributes[Utilities.Attributes.Perception];
-        GameObject.Find("Recovery_slider").GetComponent<Slider>().value = currentAttributes[Utilities.Attributes.Recovery];
-        GameObject.Find("Happiness_slider").GetComponent<Slider>().value = currentAttributes[Utilities.Attributes.Happiness];
-        //print selectedCitizen Attibute maxValue next to slider
-        GameObject.Find("Health_max_value").GetComponent<Text>().text = maxAttributes[Utilities.Attributes.Health].ToString();
-        GameObject.Find("Strength_max_value").GetComponent<Text>().text = maxAttributes[Utilities.Attributes.Strength].ToString();
-        GameObject.Find("Dexterity_max_value").GetComponent<Text>().text = maxAttributes[Utilities.Attributes.Dexterity].ToString();
-        GameObject.Find("Endurance_max_value").GetComponent<Text>().text = maxAttributes[Utilities.Attributes.Endurance].ToString();
-        GameObject.Find("Acumen_max_value").GetComponent<Text>().text = maxAttributes[Utilities.Attributes.Acumen].ToString();
-        GameObject.Find("Focus_max_value").GetComponent<Text>().text = maxAttributes[Utilities.Attributes.Focus].ToString();
-        GameObject.Find("Perception_max_value").GetComponent<Text>().text = maxAttributes[Utilities.Attributes.Perception].ToString();
-        GameObject.Find("Recovery_max_value").GetComponent<Text>().text = maxAttributes[Utilities.Attributes.Recovery].ToString();
-        GameObject.Find("Happiness_max_value").GetComponent<Text>().text = maxAttributes[Utilities.Attributes.Happiness].ToString();
-    }
-
 	//currently using this for debugging
 	public void PrintAttribute(Utilities.Attributes attrib_in)
 	{
@@ -562,8 +585,41 @@ public class CitizenBehavior : MonoBehaviour
 		selectedIndicator.SetActive (false);
 	}
 
-	public void Unbuff ()
+    public void ApplyBuff(CropsAndBuffs.Buff buff_in)
+    {
+        //to remove any old buff effects
+        Unbuff();
+
+        currentBuff = buff_in;
+
+        if (currentBuff.buffType != Utilities.BuffTypes.None)
+        {
+
+            buffIndicator.SetActive(true);
+            //currentBuff.duration = currentBuff.maxDuration;
+
+            //increase max attribute
+            if (currentBuff.buffType == Utilities.BuffTypes.AttributeScalar)
+            {
+                maxAttributes[currentBuff.attribute] += (int)Mathf.Floor(currentBuff.value);
+
+            }
+            //print (currentBuff.name + " duration: " + currentBuff.duration + " value: " + currentBuff.value);
+        }
+        else
+        {
+            //print ("NO BUFF");
+        }
+    }
+
+    public void Unbuff ()
 	{
+        if (currentBuff.buffType == Utilities.BuffTypes.AttributeScalar)
+        {
+            maxAttributes[currentBuff.attribute] -= (int)Mathf.Floor(currentBuff.value) ;
+            currentAttributes[currentBuff.attribute] = Mathf.Min(currentAttributes[currentBuff.attribute], maxAttributes[currentBuff.attribute]);
+        }
+
 		currentBuff.buffType = Utilities.BuffTypes.None;
 		buffIndicator.SetActive (false);
 	}
@@ -577,7 +633,7 @@ public class CitizenBehavior : MonoBehaviour
 	{
 		isActive = false;
 	}
-	
+
 	//DO NOT USE THIS GENERALLY
 	//This is specifically called once when citizens are created
 	//may be refactored out later

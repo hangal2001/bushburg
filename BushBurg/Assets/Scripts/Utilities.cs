@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 /* Stores functions not associated with any particular object
  * This class should not contain variables and should not
@@ -49,5 +50,53 @@ public class Utilities : MonoBehaviour
 		Texture newTexture = Resources.Load ("Crops/" + crop_in.ToString()) as Texture;
 		object_in.GetComponent<Renderer>().material.mainTexture = newTexture;
 	}
-	
+
+    //This will generate the text needed for display depending on buff type
+    public static string GenerateBuffText(CropsAndBuffs.Buff buff_in)
+    {
+        string buffText = "";
+
+        if (buff_in.buffType == BuffTypes.None)
+        {
+            buffText = "None";
+        }
+        else if (buff_in.buffType == BuffTypes.Recovery)
+        {
+            buffText = buff_in.attribute.ToString() + " recovery up. \n";
+        }
+        else if (buff_in.buffType == BuffTypes.Drain)
+        {
+            buffText = buff_in.attribute.ToString() + " drain down. \n";
+        }
+        else if (buff_in.buffType == BuffTypes.AttributeScalar)
+        {
+            buffText = "Max " + buff_in.attribute.ToString() + " up. \n";
+        }
+        else if (buff_in.buffType == BuffTypes.AttributeLockPositive)
+        {
+            buffText = buff_in.attribute.ToString() + " stays above\n";
+        }
+        else if (buff_in.buffType == BuffTypes.AttributeLockNegative)
+        {
+            buffText = "THIS SHOULD NOT EXIST YET";
+        }
+
+        if (buff_in.buffType != BuffTypes.None)
+        {
+            //adding % sign if needed
+            if (buff_in.buffType == BuffTypes.Recovery || buff_in.buffType == BuffTypes.Drain)
+            {
+                buffText += ("Value = " + Math.Round(buff_in.value, 2) + "%\nDuration = " + Mathf.Ceil(buff_in.duration / TIMESCALE));
+            }
+            else
+            {
+                buffText += ("Value = " + Math.Round(buff_in.value, 2) + "\nDuration = " + Mathf.Ceil(buff_in.duration / TIMESCALE));
+            }
+            
+        }
+        
+        return buffText;
+
+    }
+
 }

@@ -29,19 +29,19 @@ public class WorkStationBehavior : MonoBehaviour {
 	float restoreQuality;
 	float buffQuality;
 	float maxProductionTime;
-	float timeToProduce;
-	float timeModifier;
-	float recoveryRestore;
+	public float timeToProduce { get; private set; }
+    public float timeModifier { get; private set; }
+    float recoveryRestore;
 	float timeToAutoCollect;
 	GameObject currentProduct;
 
 	public bool isActive{get; private set;}
 
-	Vector3 itemSlotLoc;
+	//Vector3 itemSlotLoc;
 	Vector3 citizenSlotLoc;
 	Vector3 productLoc;
 
-	CropsAndBuffs.Buff currentBuff;
+    CropsAndBuffs.Buff currentBuff;
 
 	// Use this for initialization
 	void Awake () 
@@ -51,7 +51,7 @@ public class WorkStationBehavior : MonoBehaviour {
 		Deselect();
 
 		//this is sloppy but works
-		itemSlotLoc = transform.position + new Vector3(-1, 0, 0);
+		//itemSlotLoc = transform.position + new Vector3(-1, 0, 0);
 		citizenSlotLoc = transform.position + new Vector3(1, 0, 0);
 
 		if (stationType == Utilities.WorkStations.Cauldron)
@@ -60,7 +60,7 @@ public class WorkStationBehavior : MonoBehaviour {
 		}
 		else
 		{
-			productLoc = transform.position + new Vector3(-1, 0, 2);
+			productLoc = transform.position + new Vector3(3, 0, 0);
 		}
 
 		//setting stats for a given workstation
@@ -112,6 +112,9 @@ public class WorkStationBehavior : MonoBehaviour {
 		if (isActive && currentProduct == null)
 		{
 			timeToProduce -= Time.deltaTime*(1/(1-timeModifier));
+
+            //if(gameController.selectedTask == this.gameObject)
+               // print(timeToProduce / Utilities.TIMESCALE);
 
 			float progressPercentage = Mathf.Min(1 - timeToProduce/maxProductionTime, 1);
 			
@@ -192,7 +195,7 @@ public class WorkStationBehavior : MonoBehaviour {
 	{
 		if (stationType == Utilities.WorkStations.Table)
 		{
-			currentCitizen.GetComponent<CitizenBehavior>().Feed(recoveryRestore, currentBuff);
+			currentCitizen.GetComponent<CitizenBehavior>().Feed(recoveryRestore, currentBuff, cropType);
 
 			isActive = false;
 
@@ -200,11 +203,10 @@ public class WorkStationBehavior : MonoBehaviour {
 		else if (stationType == Utilities.WorkStations.Cauldron)
 		{
 
-			buffQuality = currentCitizen.GetComponent<CitizenBehavior>().GetQuality ();
-			buffQuality /= 15;
-			//print ("qualitymeal: " + restoreQuality + " " + buffQuality);
+            buffQuality = GetQuality();
+            //print ("qualitymeal: " + restoreQuality + " " + buffQuality);
 
-			GameObject newDraggableCrop = Instantiate(cropPrefab, productLoc, Quaternion.identity) as GameObject;
+            GameObject newDraggableCrop = Instantiate(cropPrefab, productLoc, Quaternion.identity) as GameObject;
 			newDraggableCrop.GetComponent<CropBehavior>().CreateCrop(cropType, Utilities.ItemTypes.Meal, this.gameObject, restoreQuality, buffQuality);
 			
 			currentProduct = newDraggableCrop;
@@ -214,8 +216,7 @@ public class WorkStationBehavior : MonoBehaviour {
 		}
 		else if (stationType == Utilities.WorkStations.Depot)
 		{
-			buffQuality = currentCitizen.GetComponent<CitizenBehavior>().GetQuality ();
-			buffQuality /= 15;
+            buffQuality = GetQuality();
 			//print ("qualitytrade: " + restoreQuality + " " + buffQuality);
 
 			GameObject newDraggableCrop = Instantiate(cropPrefab, productLoc, Quaternion.identity) as GameObject;
@@ -235,9 +236,27 @@ public class WorkStationBehavior : MonoBehaviour {
 
 	}
 
-	//cropBehavior calls this when the item is collected
-	//because the object is not destroyed in that specific case
-	public void RemoveProductReference()
+    public float GetQuality()
+    {
+        float quality = 0;
+
+        if (currentCitizen != null)
+        {
+            quality = currentCitizen.GetComponent<CitizenBehavior>().GetQuality();
+            quality /= 15;
+        }
+
+        return quality;
+    }
+
+    public float ConvertedTimeModifier()
+    {
+        return (1 / (1 - timeModifier));
+    }
+
+    //cropBehavior calls this when the item is collected
+    //because the object is not destroyed in that specific case
+    public void RemoveProductReference()
 	{
 		currentProduct = null;
 	}
@@ -285,27 +304,26 @@ public class WorkStationBehavior : MonoBehaviour {
 		selectedIndicator.SetActive (false);
 	}
 
-	public void SetItem(Utilities.CropTypes crop_in, Utilities.ItemTypes itemType_in, float restQuality_in, float buffQuality_in)
+	public void SetItem(Utilities.CropTypes crop_in, Utilities.ItemTypes itemType_in, float restQuality_in, CropsAndBuffs.Buff buff_in)
 	{
 		itemType = itemType_in;
 		cropType = crop_in;
 		restoreQuality = restQuality_in;
-		buffQuality = buffQuality_in;
+		//buffQuality = buffQuality_in;
 		CropsAndBuffs.Crop newCrop = CropsAndBuffs.cropList[cropType];
 
 		if (stationType == Utilities.WorkStations.Cauldron)
 		{
 			//fatigueRate = newCrop.fatigueRate/Utilities.COOKTIMERATIO;
-			maxProductionTime = newCrop.timeToProduce*Utilities.COOKTIMERATIO/(Utilities.TIMESCALE);
+			maxProductionTime = (newCrop.timeToProduce*Utilities.COOKTIMERATIO)/(Utilities.TIMESCALE);
+            //print(maxProductionTime);
 			timeToProduce = maxProductionTime;
 		}
 		else if (stationType == Utilities.WorkStations.Table)
 		{
 			if (itemType == Utilities.ItemTypes.Meal)
 			{
-				currentBuff = CropsAndBuffs.buffList[cropType];
-				currentBuff.duration += currentBuff.duration*restoreQuality;
-				currentBuff.value += currentBuff.value*buffQuality;
+                currentBuff = buff_in;
 			}
 			else
 			{
@@ -337,6 +355,8 @@ public class WorkStationBehavior : MonoBehaviour {
 		
 		Utilities.SetCropTexture(this.gameObject.transform.GetChild (1).gameObject, crop_in);
 
-	}
+        if (gameController.selectedTask == this.gameObject)
+            GameObject.Find("Current_Task_UI").GetComponent<CurrentTaskUI_Script>().SetTask();
+    }
 
 }

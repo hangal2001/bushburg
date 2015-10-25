@@ -29,6 +29,7 @@ public class CropsAndBuffs : MonoBehaviour
 		public Utilities.Attributes attribute;
 		public float value;
 		public float duration;
+        public float maxDuration;
 	}
 
 	public static Dictionary<Utilities.CropTypes, Crop> cropList;
@@ -47,28 +48,149 @@ public class CropsAndBuffs : MonoBehaviour
 		buffList = new Dictionary<Utilities.CropTypes, Buff>();
 
 		Buff newBuff;
+        newBuff.duration = 0;
 
 		newBuff.name = "Yam";
 		newBuff.buffType = Utilities.BuffTypes.AttributeScalar;
 		newBuff.attribute = Utilities.Attributes.Perception;
 		newBuff.value = 1;
-		newBuff.duration = 60;
+		newBuff.maxDuration = 60;
 		buffList.Add (Utilities.CropTypes.Yam, newBuff);
 
 		newBuff.name = "Corn";
 		newBuff.buffType = Utilities.BuffTypes.Recovery;
 		newBuff.attribute = Utilities.Attributes.Endurance;
 		newBuff.value = 50;
-		newBuff.duration = 60;
+		newBuff.maxDuration = 60;
 		buffList.Add(Utilities.CropTypes.Corn, newBuff);
 
 		newBuff.name = "Collard Greens";
 		newBuff.buffType = Utilities.BuffTypes.Drain;
-		newBuff.attribute = Utilities.Attributes.Dexterity;
-		newBuff.value = -20;
-		newBuff.duration = 60;
+		newBuff.attribute = Utilities.Attributes.Focus;
+		newBuff.value = 25;
+		newBuff.maxDuration = 60;
 		buffList.Add(Utilities.CropTypes.CollardGreens, newBuff);
-	}
+
+        newBuff.name = "Okra";
+        newBuff.buffType = Utilities.BuffTypes.Recovery;
+        newBuff.attribute = attrib.Acumen;
+        newBuff.value = 50;
+        newBuff.maxDuration = 60;
+        buffList.Add(Utilities.CropTypes.Okra, newBuff);
+
+        newBuff.name = "Pumpkin";
+        newBuff.buffType = Utilities.BuffTypes.Drain;
+        newBuff.attribute = attrib.Endurance;
+        newBuff.value = 25;
+        newBuff.maxDuration = 100;
+        buffList.Add(Utilities.CropTypes.Pumpkin, newBuff);
+
+        newBuff.name = "Agave";
+        newBuff.buffType = Utilities.BuffTypes.AttributeLockPositive;
+        newBuff.attribute = attrib.Focus;
+        newBuff.value = 3;
+        newBuff.maxDuration = 60;
+        buffList.Add(Utilities.CropTypes.Agave, newBuff);
+
+        newBuff.name = "Cabbage";
+        newBuff.buffType = Utilities.BuffTypes.Recovery;
+        newBuff.attribute = attrib.Dexterity;
+        newBuff.value = 50;
+        newBuff.maxDuration = 60;
+        buffList.Add(Utilities.CropTypes.Cabbage, newBuff);
+
+        newBuff.name = "Pepper";
+        newBuff.buffType = Utilities.BuffTypes.AttributeLockPositive;
+        newBuff.attribute = attrib.Perception;
+        newBuff.value = 3;
+        newBuff.maxDuration = 60;
+        buffList.Add(Utilities.CropTypes.Pepper, newBuff);
+
+        newBuff.name = "Egg";
+        newBuff.buffType = Utilities.BuffTypes.Drain;
+        newBuff.attribute = attrib.Strength;
+        newBuff.value = 25;
+        newBuff.maxDuration = 100;
+        buffList.Add(Utilities.CropTypes.Egg, newBuff);
+
+        newBuff.name = "Squash";
+        newBuff.buffType = Utilities.BuffTypes.AttributeScalar;
+        newBuff.attribute = attrib.Endurance;
+        newBuff.value = 1;
+        newBuff.maxDuration = 100;
+        buffList.Add(Utilities.CropTypes.Squash, newBuff);
+
+        newBuff.name = "Banana";
+        newBuff.buffType = Utilities.BuffTypes.AttributeLockPositive;
+        newBuff.attribute = attrib.Dexterity;
+        newBuff.value = 3;
+        newBuff.maxDuration = 60;
+        buffList.Add(Utilities.CropTypes.Banana, newBuff);
+
+        newBuff.name = "Honey";
+        newBuff.buffType = Utilities.BuffTypes.Drain;
+        newBuff.attribute = attrib.Acumen;
+        newBuff.value = 25;
+        newBuff.maxDuration = 100;
+        buffList.Add(Utilities.CropTypes.Honey, newBuff);
+
+        newBuff.name = "Lettuce";
+        newBuff.buffType = Utilities.BuffTypes.Recovery;
+        newBuff.attribute = attrib.Focus;
+        newBuff.value = 50;
+        newBuff.maxDuration = 60;
+        buffList.Add(Utilities.CropTypes.Lettuce, newBuff);
+
+        newBuff.name = "Bacon";
+        newBuff.buffType = Utilities.BuffTypes.AttributeLockPositive;
+        newBuff.attribute = attrib.Strength;
+        newBuff.value = 4;
+        newBuff.maxDuration = 60;
+        buffList.Add(Utilities.CropTypes.Bacon, newBuff);
+
+        newBuff.name = "Pineapple";
+        newBuff.buffType = Utilities.BuffTypes.AttributeScalar;
+        newBuff.attribute = attrib.Acumen;
+        newBuff.value = 1;
+        newBuff.maxDuration = 100 ;
+        buffList.Add(Utilities.CropTypes.Pineapple, newBuff);
+
+        newBuff.name = "GoatMilk";
+        newBuff.buffType = Utilities.BuffTypes.Recovery;
+        newBuff.attribute = attrib.Strength;
+        newBuff.value = 75;
+        newBuff.maxDuration = 60;
+        buffList.Add(Utilities.CropTypes.GoatMilk, newBuff);
+
+        newBuff.name = "Tomato";
+        newBuff.buffType = Utilities.BuffTypes.Drain;
+        newBuff.attribute = attrib.Dexterity;
+        newBuff.value = 35;
+        newBuff.maxDuration = 60;
+        buffList.Add(Utilities.CropTypes.Tomato, newBuff);
+
+        newBuff.name = "Beef";
+        newBuff.buffType = Utilities.BuffTypes.AttributeScalar;
+        newBuff.attribute = attrib.Strength;
+        newBuff.value = 1;
+        newBuff.maxDuration = 100;
+        buffList.Add(Utilities.CropTypes.Beef, newBuff);
+
+        newBuff.name = "Sugar";
+        newBuff.buffType = Utilities.BuffTypes.Drain;
+        newBuff.attribute = attrib.Perception;
+        newBuff.value = 35;
+        newBuff.maxDuration = 60;
+        buffList.Add(Utilities.CropTypes.Sugar, newBuff);
+
+        newBuff.name = "Peanut";
+        newBuff.buffType = Utilities.BuffTypes.AttributeLockPositive;
+        newBuff.attribute = attrib.Acumen;
+        newBuff.value = 4;
+        newBuff.maxDuration = 100;
+        buffList.Add(Utilities.CropTypes.Peanut, newBuff);
+
+    }
 
 	public static void GenerateCropList()
 	{

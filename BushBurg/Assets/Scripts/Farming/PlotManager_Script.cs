@@ -23,6 +23,8 @@ public class PlotManager_Script : MonoBehaviour
 		
 		plots = new List<GameObject>();
 
+        LevelUp();
+
 	}
 	
 	// Update is called once per frame
@@ -41,7 +43,7 @@ public class PlotManager_Script : MonoBehaviour
 			plotCount++;
 
 			//this just does messy arithmetic to place the plots correctly
-			GameObject newPlot = Instantiate (plotPrefab, new Vector3(20+7*((plotCount-1)/5), -.4f, 11 - 5*((plotCount-1)%5)), Quaternion.identity) as GameObject;
+			GameObject newPlot = Instantiate (plotPrefab, new Vector3(1+7*((plotCount-1)/5), -.4f, 15 - 5*((plotCount-1)%5)), Quaternion.identity) as GameObject;
 			plots.Add (newPlot);
 			//newPlot.GetComponent<FarmPlot_Cultivation>().SetCrop(croplist[plotCount-1]);
 
@@ -49,7 +51,7 @@ public class PlotManager_Script : MonoBehaviour
 			if (level == 1 || level == 8)
 			{
 				plotCount++;
-				newPlot = Instantiate (plotPrefab, new Vector3(20+7*((plotCount-1)/5), -.4f, 11 - 5*((plotCount-1)%5)), Quaternion.identity) as GameObject;
+				newPlot = Instantiate (plotPrefab, new Vector3(1+7*((plotCount-1)/5), -.4f, 15 - 5*((plotCount-1)%5)), Quaternion.identity) as GameObject;
 				plots.Add (newPlot);
 				//newPlot.GetComponent<FarmPlot_Cultivation>().SetCrop(croplist[plotCount-1]);
 			}

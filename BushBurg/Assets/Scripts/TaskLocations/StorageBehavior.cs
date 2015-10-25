@@ -7,46 +7,28 @@ public class StorageBehavior : MonoBehaviour {
 	static int NUMCROPS = 21;
 
 	public GameObject cropPadPrefab;
-    public GameObject stockItemsPrefab;
 
 	public List<GameObject> cropPads{get; private set;}
-    public List<GameObject> stockItems { get; private set; }
 
 	public float offsetX, offsetZ;
 	public float multiplierX, multiplierZ;
-
-    GameController_Script gamecontroller;
-
+	
 	public Dictionary<Utilities.CropTypes, List<float>> crops;
+
+    GameObject[] stocks;
+    int level;
 
 	// Use this for initialization
 	void Start () 
 	{
 		cropPads = new List<GameObject>();
-        stockItems = new List<GameObject>();
 		crops = new Dictionary<Utilities.CropTypes, List<float>>();
-        gamecontroller = GameObject.Find("GameController").GetComponent<GameController_Script>();
-		BuildEmptyStorage();
+        level = 0;
 
-		for (int c=1; c < NUMCROPS; c++)
-		{
-			Vector3 nextLoc = new Vector3(offsetX +((c-1)/11)*multiplierX, 0f, ((c-1)%11)*multiplierZ + offsetZ); 
-			GameObject nextPad = Instantiate(cropPadPrefab, transform.position+nextLoc, Quaternion.identity) as GameObject;
-			nextPad.GetComponent<CropPadBehavior>().SetCrop((Utilities.CropTypes)c);
-			cropPads.Add (nextPad);
-            nextPad.SetActive(false);
-            GameObject item = Instantiate(stockItemsPrefab, transform.position + nextLoc, Quaternion.Euler(90, 0, 0)) as GameObject;
-            item.GetComponent<Stock_item_Script>().SetCrop((Utilities.CropTypes)c);
-            stockItems.Add(item);
-            gamecontroller.stocks[c-1] = item;
-		}
-        cropPads[0].SetActive(true);
-        cropPads[1].SetActive(true);
-        cropPads[2].SetActive(true);
-        gamecontroller.stocks[0].SetActive(true);
-        gamecontroller.stocks[1].SetActive(true);
-        gamecontroller.stocks[2].SetActive(true);
-	}
+		BuildEmptyStorage();
+        LevelUp();
+
+    }
 	
 	// Update is called once per frame
 	void Update () 
@@ -113,16 +95,91 @@ public class StorageBehavior : MonoBehaviour {
 
 	void BuildEmptyStorage()
 	{
-        gamecontroller.stocks = new GameObject[NUMCROPS];
-
-        for (int c=0; c < NUMCROPS; c++)
+		for (int c=1; c < NUMCROPS; c++)
 		{
 			crops.Add ((Utilities.CropTypes)c, new List<float>());
-		}
-	}
 
-     public void enableCrop(int crop_in){
+            Vector3 nextLoc = new Vector3(offsetX + ((c - 1) / 11) * multiplierX, 0f, ((c - 1) % 11) * multiplierZ + offsetZ);
+            GameObject nextPad = Instantiate(cropPadPrefab, transform.position + nextLoc, Quaternion.identity) as GameObject;
+            nextPad.GetComponent<CropPadBehavior>().SetCrop((Utilities.CropTypes)c);
+            cropPads.Add(nextPad);
 
-         cropPads[crop_in].SetActive(true);
+        }
+
+
+        //THIS CURRENTLY GETS AN ARRAY OF STOCK OBJECTS TO DISABLE THEM DEPENDING ON LEVEL
+        GameObject stock = transform.GetChild(0).gameObject;
+        stocks = new GameObject[NUMCROPS - 1];
+
+        for (int c = 2; c < 22; c++)
+        {
+            stocks[c - 2] = stock.transform.GetChild(c).gameObject;
+
+            if (c > 4)
+            {
+                stocks[c - 2].SetActive(false);
+                cropPads[c - 2].SetActive(false);
+            }
+        }
+    }
+
+    public void LevelUp()
+    {
+        level++;
+
+        switch (level)
+        {
+            case 1:
+                break;
+            case 2:
+                stocks[3].SetActive(true);
+                stocks[4].SetActive(true);
+                stocks[5].SetActive(true);
+                cropPads[3].SetActive(true);
+                cropPads[4].SetActive(true);
+                cropPads[5].SetActive(true);
+                break;
+            case 3:
+                stocks[6].SetActive(true);
+                stocks[7].SetActive(true);
+                stocks[8].SetActive(true);
+                cropPads[6].SetActive(true);
+                cropPads[7].SetActive(true);
+                cropPads[8].SetActive(true);
+                break;
+            case 4:
+                stocks[9].SetActive(true);
+                stocks[10].SetActive(true);
+                stocks[11].SetActive(true);
+                cropPads[9].SetActive(true);
+                cropPads[10].SetActive(true);
+                cropPads[11].SetActive(true);
+                break;
+            case 5:
+                stocks[12].SetActive(true);
+                stocks[13].SetActive(true);
+                cropPads[12].SetActive(true);
+                cropPads[13].SetActive(true);
+                break;
+            case 6:
+                stocks[14].SetActive(true);
+                stocks[15].SetActive(true);
+                cropPads[14].SetActive(true);
+                cropPads[15].SetActive(true);
+                break;
+            case 7:
+                stocks[16].SetActive(true);
+                stocks[17].SetActive(true);
+                cropPads[16].SetActive(true);
+                cropPads[17].SetActive(true);
+                break;
+            case 8:
+                stocks[18].SetActive(true);
+                stocks[19].SetActive(true);
+                cropPads[18].SetActive(true);
+                cropPads[19].SetActive(true);
+                break;
+
+        }
     }
 }

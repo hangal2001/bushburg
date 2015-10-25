@@ -23,9 +23,9 @@ public class CropBehavior : MonoBehaviour {
 	GameObject indicator;
 
 	public float restoreQuality{get; private set;}
-	public float buffQuality{get; private set;}
+	//public float buffQuality{get; private set;}
 
-
+    CropsAndBuffs.Buff currentBuff;
 
 	// Use this for initialization
 	void Awake () 
@@ -53,17 +53,18 @@ public class CropBehavior : MonoBehaviour {
 		if (itemType == Utilities.ItemTypes.Crop)
 		{
 			restoreQuality = restQuality_in;
-			buffQuality =0;
 		}
 
 		if (itemType == Utilities.ItemTypes.Meal)
 		{
 			restoreQuality = restQuality_in;
-			buffQuality = buffQuality_in;
 
+            currentBuff = CropsAndBuffs.buffList[cropType];
+            currentBuff.maxDuration += currentBuff.maxDuration * restoreQuality;
+            currentBuff.value += currentBuff.value * buffQuality_in;
+            currentBuff.duration = currentBuff.maxDuration;
 
-
-			/*
+            /*
 			if (currentBuff.buffType == Utilities.BuffTypes.Recovery)
 			{
 
@@ -80,7 +81,7 @@ public class CropBehavior : MonoBehaviour {
 			{
 
 			}*/
-		}
+        }
 
 		Utilities.SetCropTexture(this.gameObject, crop_in);
 
@@ -100,7 +101,7 @@ public class CropBehavior : MonoBehaviour {
 
 				if (type == Utilities.WorkStations.Table || type == Utilities.WorkStations.Depot)
 				{
-					currentProspect.GetComponent<WorkStationBehavior>().SetItem (cropType, Utilities.ItemTypes.Meal, restoreQuality, buffQuality);
+					currentProspect.GetComponent<WorkStationBehavior>().SetItem (cropType, Utilities.ItemTypes.Meal, restoreQuality, currentBuff);
 					mealTray.Unassign (this.gameObject);
 					Destroy (this.gameObject);
 				}
@@ -135,11 +136,11 @@ public class CropBehavior : MonoBehaviour {
 
 					if (currentProspect.GetComponent<WorkStationBehavior>().stationType == Utilities.WorkStations.Table)
 					{
-						currentProspect.GetComponent<WorkStationBehavior>().SetItem (cropType, Utilities.ItemTypes.Crop, restoreQuality, 0);
+						currentProspect.GetComponent<WorkStationBehavior>().SetItem (cropType, Utilities.ItemTypes.Crop, restoreQuality, currentBuff);
 					}
 					else
 					{
-						currentProspect.GetComponent<WorkStationBehavior>().SetItem (cropType, Utilities.ItemTypes.Crop, restoreQuality, buffQuality);
+						currentProspect.GetComponent<WorkStationBehavior>().SetItem (cropType, Utilities.ItemTypes.Crop, restoreQuality, currentBuff);
 					}
 				}
 			}
