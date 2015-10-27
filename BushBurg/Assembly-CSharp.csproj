@@ -66,6 +66,7 @@
      <Compile Include="Assets\Scripts\UI\Stock_item_Script.cs" />
      <Compile Include="Assets\Scripts\Utilities.cs" />
      <Compile Include="Assets\crop_indicator_Script.cs" />
+     <Compile Include="Assets\timer.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
