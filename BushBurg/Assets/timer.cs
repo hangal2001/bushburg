@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class timer : MonoBehaviour {
 
-     public Text timerLabel;
+     public TextMesh timerLabel;
  
      private float time;
  
