@@ -51,6 +51,11 @@ public class Utilities : MonoBehaviour
 		object_in.GetComponent<Renderer>().material.mainTexture = newTexture;
 	}
 
+    public static GameController_Script GetGameController()
+    {
+        return GameObject.Find("GameController").GetComponent<GameController_Script>();
+    }
+
     //This will generate the text needed for display depending on buff type
     public static string GenerateBuffText(CropsAndBuffs.Buff buff_in)
     {

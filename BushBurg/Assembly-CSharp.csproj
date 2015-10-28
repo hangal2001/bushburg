@@ -38,13 +38,14 @@
 	<Reference Include="System.Core" />
 	<Reference Include="System.Xml.Linq" />
 	<Reference Include="UnityEngine">
-	  <HintPath>C:/Program Files/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	  <HintPath>V:/Unity5/Editor/Data/Managed/UnityEngine.dll</HintPath>
 	</Reference>
 	<Reference Include="UnityEditor">
-	  <HintPath>C:/Program Files/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	  <HintPath>V:/Unity5/Editor/Data/Managed/UnityEditor.dll</HintPath>
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\MiscUI_Script.cs" />
      <Compile Include="Assets\Scripts\Citizens\CitizenBehavior.cs" />
      <Compile Include="Assets\Scripts\Citizens\CitizenManager_Script.cs" />
      <Compile Include="Assets\Scripts\CropsAndBuffs.cs" />
@@ -65,19 +66,20 @@
      <Compile Include="Assets\Scripts\UI\CurrentTaskUI_Script.cs" />
      <Compile Include="Assets\Scripts\UI\Stock_item_Script.cs" />
      <Compile Include="Assets\Scripts\Utilities.cs" />
+     <Compile Include="Assets\UI\AttributeSlider_Script.cs" />
      <Compile Include="Assets\crop_indicator_Script.cs" />
      <Compile Include="Assets\timer.cs" />
  <Reference Include="UnityEngine.UI">
- <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
+ <HintPath>V:/Unity5/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Networking">
- <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
+ <HintPath>V:/Unity5/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
  </Reference>
  <Reference Include="Mono.Cecil">
- <HintPath>C:/Program Files/Unity/Editor/Data/Managed/Mono.Cecil.dll</HintPath>
+ <HintPath>V:/Unity5/Editor/Data/Managed/Mono.Cecil.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.iOS.Extensions.Xcode">
- <HintPath>C:/Program Files/Unity/Editor/Data/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
+ <HintPath>V:/Unity5/Editor/Data/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

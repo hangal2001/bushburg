@@ -110,7 +110,7 @@ public class CurrentTaskUI_Script : MonoBehaviour {
                         texts[4].text = ((Utilities.Attributes)c).ToString();
 
                 for (int c = 7; c < 10; c++)
-                    if (farmTask.primaryEff != (Utilities.Attributes)c && farmTask.secondaryEff != (Utilities.Attributes)c)
+                    if (farmTask.primaryQual != (Utilities.Attributes)c && farmTask.secondaryQual != (Utilities.Attributes)c)
                         texts[5].text = ((Utilities.Attributes)c).ToString();         
             }
 
@@ -139,7 +139,7 @@ public class CurrentTaskUI_Script : MonoBehaviour {
                         texts[4].text = ((Utilities.Attributes)c).ToString();
 
                 for (int c = 7; c < 10; c++)
-                    if (workTask.primaryEff != (Utilities.Attributes)c && workTask.secondaryEff != (Utilities.Attributes)c)
+                    if (workTask.primaryQual != (Utilities.Attributes)c && workTask.secondaryQual != (Utilities.Attributes)c)
                         texts[5].text = ((Utilities.Attributes)c).ToString();
             }
         }

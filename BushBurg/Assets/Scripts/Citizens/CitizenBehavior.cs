@@ -43,11 +43,11 @@ public class CitizenBehavior : MonoBehaviour
 
 	//anytime this citizen is assigned to a new task, these are updated from
 	//the task it is assigned to
-	Utilities.Attributes primaryEff;
-	Utilities.Attributes secondaryEff;
-	Utilities.Attributes primaryQual;
-	Utilities.Attributes secondaryQual;
-	float fatigueRate;
+	public Utilities.Attributes primaryEff { get; private set; }
+	public Utilities.Attributes secondaryEff { get; private set; }
+    public Utilities.Attributes primaryQual { get; private set; }
+    public Utilities.Attributes secondaryQual { get; private set; }
+    float fatigueRate;
 	public bool isActive{get; private set;}
 
     public CropsAndBuffs.Buff currentBuff;
@@ -65,7 +65,7 @@ public class CitizenBehavior : MonoBehaviour
 
 		maxAttributes = new Dictionary<Utilities.Attributes, float>();
 		currentAttributes = new Dictionary<Utilities.Attributes, float>();
-		GenerateRandomAttributes ();
+		//GenerateRandomAttributes ();
 
 		render = this.gameObject.GetComponent<Renderer>();
 
@@ -542,8 +542,33 @@ public class CitizenBehavior : MonoBehaviour
 
 	//+++++++Debug, Setup, Misc++++++//
 
+    public void SetAttributes(int str_in, int dex_in, int end_in, int perc_in, int foc_in, int acu_in)
+    {
+        maxAttributes.Add(Utilities.Attributes.Health, 10);
+        maxAttributes.Add(Utilities.Attributes.Happiness, 10);
+        maxAttributes.Add(Utilities.Attributes.Recovery, 10);
+        currentAttributes.Add(Utilities.Attributes.Health, 10);
+        currentAttributes.Add(Utilities.Attributes.Happiness, 10);
+        currentAttributes.Add(Utilities.Attributes.Recovery, 10);
 
+        maxAttributes.Add(Utilities.Attributes.Strength, str_in);
+        currentAttributes.Add(Utilities.Attributes.Strength, str_in);
 
+        maxAttributes.Add(Utilities.Attributes.Dexterity, dex_in);
+        currentAttributes.Add(Utilities.Attributes.Dexterity, dex_in);
+
+        maxAttributes.Add(Utilities.Attributes.Endurance, end_in);
+        currentAttributes.Add(Utilities.Attributes.Endurance, end_in);
+
+        maxAttributes.Add(Utilities.Attributes.Perception, perc_in);
+        currentAttributes.Add(Utilities.Attributes.Perception, perc_in);
+
+        maxAttributes.Add(Utilities.Attributes.Focus, foc_in);
+        currentAttributes.Add(Utilities.Attributes.Focus, foc_in);
+
+        maxAttributes.Add(Utilities.Attributes.Acumen, acu_in);
+        currentAttributes.Add(Utilities.Attributes.Acumen, acu_in);
+    }
 
 	//currently used to help test the UI
 	void GenerateRandomAttributes()

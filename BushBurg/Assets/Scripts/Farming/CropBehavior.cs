@@ -33,9 +33,9 @@ public class CropBehavior : MonoBehaviour {
 		storage = GameObject.Find ("Storage").GetComponent<StorageBehavior>();
 		gameController = GameObject.Find ("GameController").GetComponent<GameController_Script>();
 		mealTray = GameObject.Find ("MealTray").GetComponent<MealTrayBehavior>();
-		moneyLoc = new Vector3(-20, 0, -2.5f);
+		moneyLoc = new Vector3(-10.5f, 0, 20);
 
-
+        
 	}
 	
 	// Update is called once per frame

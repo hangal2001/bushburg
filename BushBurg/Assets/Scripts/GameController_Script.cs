@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class GameController_Script : MonoBehaviour {
 
 	static int NUMCOLORMODES = 2;
+    
 
 	Vector3 mouseLoc;
 	bool isDraggingCitizen;
@@ -23,10 +24,11 @@ public class GameController_Script : MonoBehaviour {
 
 	public int currentMoney{get; private set;}
 
-	//GameObject[] stocks;
+    public int baseLevelUp{get; private set;} //how much money to go from 1 to 2
 
-	// Use this for initialization
-	void Start () 
+
+// Use this for initialization
+    void Start () 
 	{
 		plotManager = GameObject.Find ("PlotManager").GetComponent<PlotManager_Script>();
 		citizenManager = GameObject.Find ("CitizenManager").GetComponent<CitizenManager_Script>();
@@ -36,6 +38,7 @@ public class GameController_Script : MonoBehaviour {
 
 		modeCounter = 0;
 		currentMoney = 0;
+        level = 1;
 
 		//creates the list of crops for the game to draw from
 		//wanted it out of the way because it's a lot of lines
@@ -43,7 +46,7 @@ public class GameController_Script : MonoBehaviour {
 		CropsAndBuffs.GenerateBuffList ();
 
 
-
+        baseLevelUp = 100;
 		//print (stocks[15]);
 
 		//LevelUp ();
@@ -61,12 +64,14 @@ public class GameController_Script : MonoBehaviour {
 	void Update () 
 	{
 		GetInput ();
+
+        CheckMoney();
 		//print (stocks[15]);
 	}
 
     void LateUpdate()
     {
-        UpdateCurrentCitizenAttributeValues();
+        //UpdateCurrentCitizenAttributeValues();
     }
 
 	void GetInput()
@@ -200,6 +205,27 @@ public class GameController_Script : MonoBehaviour {
 		//print (currentMoney);
 	}
 
+    void CheckMoney()
+    {
+        if (currentMoney > baseLevelUp)
+        {
+            if (level == 8)
+            {
+                //end game
+            }
+            else
+            {
+                LevelUp();
+                currentMoney -= baseLevelUp;
+                baseLevelUp = (int)(baseLevelUp*1.5f);
+            }
+            
+        }
+
+
+
+    }
+
 	void LevelUp()
 	{
 		if (level < 9)
@@ -234,35 +260,4 @@ public class GameController_Script : MonoBehaviour {
 		return Camera.main.ScreenToWorldPoint (new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.transform.position.y - offset));
 	}
 
-    //update selected citizen 
-    void UpdateCurrentCitizenAttributeValues()
-    {
-       // CitizenBehavior curCit;
-        if (selectedCitizen != null)
-        {
-            CitizenBehavior curCit = selectedCitizen.GetComponent<CitizenBehavior>();
-            //updating slider values.
-            GameObject.Find("Health_slider").GetComponent<Slider>().value = curCit.currentAttributes[Utilities.Attributes.Health];
-            //GameObject.Find("Health_slider").GetComponent<Slider>().maximumValue = curCit.maxAttributes[Utilities.Attributes.Health];
-            GameObject.Find("Strength_slider").GetComponent<Slider>().value = curCit.currentAttributes[Utilities.Attributes.Strength];
-            GameObject.Find("Dexterity_slider").GetComponent<Slider>().value = curCit.currentAttributes[Utilities.Attributes.Dexterity];
-            GameObject.Find("Endurance_slider").GetComponent<Slider>().value = curCit.currentAttributes[Utilities.Attributes.Endurance];
-            GameObject.Find("Acumen_slider").GetComponent<Slider>().value = curCit.currentAttributes[Utilities.Attributes.Acumen];
-            GameObject.Find("Focus_slider").GetComponent<Slider>().value = curCit.currentAttributes[Utilities.Attributes.Focus];
-            GameObject.Find("Perception_slider").GetComponent<Slider>().value = curCit.currentAttributes[Utilities.Attributes.Perception];
-            GameObject.Find("Recovery_slider").GetComponent<Slider>().value = curCit.currentAttributes[Utilities.Attributes.Recovery];
-            GameObject.Find("Happiness_slider").GetComponent<Slider>().value = curCit.currentAttributes[Utilities.Attributes.Happiness];
-            //print curCit Attibute maxValue next to slider
-            GameObject.Find("Health_max_value").GetComponent<Text>().text = curCit.maxAttributes[Utilities.Attributes.Health].ToString();
-            GameObject.Find("Strength_max_value").GetComponent<Text>().text = curCit.maxAttributes[Utilities.Attributes.Strength].ToString();
-            GameObject.Find("Dexterity_max_value").GetComponent<Text>().text = curCit.maxAttributes[Utilities.Attributes.Dexterity].ToString();
-            GameObject.Find("Endurance_max_value").GetComponent<Text>().text = curCit.maxAttributes[Utilities.Attributes.Endurance].ToString();
-            GameObject.Find("Acumen_max_value").GetComponent<Text>().text = curCit.maxAttributes[Utilities.Attributes.Acumen].ToString();
-            GameObject.Find("Focus_max_value").GetComponent<Text>().text = curCit.maxAttributes[Utilities.Attributes.Focus].ToString();
-            GameObject.Find("Perception_max_value").GetComponent<Text>().text = curCit.maxAttributes[Utilities.Attributes.Perception].ToString();
-            GameObject.Find("Recovery_max_value").GetComponent<Text>().text = curCit.maxAttributes[Utilities.Attributes.Recovery].ToString();
-            GameObject.Find("Happiness_max_value").GetComponent<Text>().text = curCit.maxAttributes[Utilities.Attributes.Happiness].ToString();
-        }
-
-    }
 }
