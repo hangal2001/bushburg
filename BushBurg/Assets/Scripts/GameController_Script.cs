@@ -46,7 +46,7 @@ public class GameController_Script : MonoBehaviour {
 		CropsAndBuffs.GenerateBuffList ();
 
 
-        baseLevelUp = 100;
+        baseLevelUp = 80;
 		//print (stocks[15]);
 
 		//LevelUp ();

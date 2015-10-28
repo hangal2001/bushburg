@@ -6,12 +6,15 @@ using System.Collections.Generic;
 //Main script for individual citizens
 public class CitizenBehavior : MonoBehaviour 
 {
-	static float FATIGUESCALE = (1f/10f)*Utilities.TIMESCALE;//how many seconds to fatigue if fatigue rate is 1
+	static float FATIGUESCALE = (1f/35f)*Utilities.TIMESCALE;//how many seconds to fatigue if fatigue rate is 1
 															 //a higher denominator means more seconds
-	static float HUNGERSCALE = (1f/60f)*Utilities.TIMESCALE;//how many seconds for the recovery stat to drop by 1
-															//higher denominator means more seconds
+	static float HUNGERSCALE = (1f/75f)*Utilities.TIMESCALE;//how many seconds for the recovery stat to drop by 1
+                                                            //higher denominator means more seconds
+    static float BUFFSCALE = 1.5f;   //flat scalar for all buff durations
+    static float IDLEBONUS = 2f;    //scalar for recovery time if idle
+    static float MEALBONUS = .25f;   //scalar for direct attribute recovery from eating
 
-	public GameController_Script gameController;
+    public GameController_Script gameController;
 
 	public bool canMove{get; private set;}
 	public GameObject currentProspect {get; private set;}	//holds the last slottable object this citizen collided with
@@ -187,7 +190,7 @@ public class CitizenBehavior : MonoBehaviour
 			{
 				float currentAtt = currentAttributes[(Utilities.Attributes)c];
 
-				currentAttributes[(Utilities.Attributes)c] = Mathf.Min (currentAtt + currentRecovery, maxAttributes[(Utilities.Attributes)c]);
+				currentAttributes[(Utilities.Attributes)c] = Mathf.Min (currentAtt + currentRecovery*IDLEBONUS, maxAttributes[(Utilities.Attributes)c]);
 			}
 		}
 		else
@@ -327,12 +330,20 @@ public class CitizenBehavior : MonoBehaviour
         if (buff_in.buffType != Utilities.BuffTypes.None)
         {
             currentBuff = buff_in;
+            currentBuff.duration *= BUFFSCALE;
             buffCropType = cropType_in;
             ApplyBuff(currentBuff);
 
         }
 
+        float oldRecovery = currentAttributes[Utilities.Attributes.Recovery];
         currentAttributes[Utilities.Attributes.Recovery] = Mathf.Min (currentAttributes[Utilities.Attributes.Recovery]+amount, 10);
+        oldRecovery = currentAttributes[Utilities.Attributes.Recovery] - oldRecovery;
+
+        for (int c = (int)Utilities.Attributes.Strength; c <= (int)Utilities.Attributes.Acumen; c++)
+        {
+            currentAttributes[(Utilities.Attributes)c] = Mathf.Min(currentAttributes[(Utilities.Attributes)c] + oldRecovery*MEALBONUS, maxAttributes[(Utilities.Attributes)c]);
+        }
 
 
         //change buff in ui if needed

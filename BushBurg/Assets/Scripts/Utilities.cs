@@ -9,9 +9,9 @@ using System;
 
 public class Utilities : MonoBehaviour 
 {
-	public static float TIMESCALE = 3f;				//increase time scale to make game go faster
+	public static float TIMESCALE = .7f;				//increase time scale to make game go faster
 	public static float MAXTIMEMODIFIER = .8f;		//cap on how much stats can affect production time, must be less than 1
-	public static float COOKTIMERATIO = 2f;			//multiplier for time costs to cook a specific crop
+	public static float COOKTIMERATIO = 1.5f;			//multiplier for time costs to cook a specific crop
 	public static float TRADETIMERATIO = 1f;		//multiplier for time costs to trade a specific crop
 
 	/*NOTES ON ENUM FUNCTIONALITY
