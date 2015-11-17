@@ -70,11 +70,17 @@
      <Compile Include="Assets\UI\AttributeSlider_Script.cs" />
      <Compile Include="Assets\crop_indicator_Script.cs" />
      <Compile Include="Assets\timer.cs" />
+ <Reference Include="UnityEngine.Advertisements">
+ <HintPath>V:/Unity5/Editor/Data/UnityExtensions/Unity/Advertisements/UnityEngine.Advertisements.dll</HintPath>
+ </Reference>
  <Reference Include="UnityEngine.UI">
  <HintPath>V:/Unity5/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Networking">
  <HintPath>V:/Unity5/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.Analytics">
+ <HintPath>V:/Unity5/Editor/Data/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
  </Reference>
  <Reference Include="Mono.Cecil">
  <HintPath>V:/Unity5/Editor/Data/Managed/Mono.Cecil.dll</HintPath>

@@ -1,0 +1,8 @@
+5.2.2f1:2.1.0.0
+StandaloneWindows
+V:/Unity5/Editor/Data/Managed/UnityEngine.dll
+V:/Unity5/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll
+V:/Unity5/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll
+V:/Unity5/Editor/Data/Managed/UnityEditor.dll
+V:/Unity5/Editor/Data\Managed/Mono.Cecil.dll
+V:/Unity5/Editor/Data/PlaybackEngines/iOSSupport\UnityEditor.iOS.Extensions.Xcode.dll

@@ -36,7 +36,7 @@ public class StorageBehavior : MonoBehaviour {
 
 	}
 
-	public float GetLowestQuality(List<float> list_in)
+	float GetLowestQuality(List<float> list_in)
 	{
 		float lowest = 100f;
 
@@ -51,7 +51,7 @@ public class StorageBehavior : MonoBehaviour {
 		return lowest;
 	}
 
-	public float GetHighestQuality(List<float> list_in)
+	float GetHighestQuality(List<float> list_in)
 	{
 		float highest = 0;
 		

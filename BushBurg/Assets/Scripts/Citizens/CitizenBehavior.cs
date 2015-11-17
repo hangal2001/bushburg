@@ -6,57 +6,41 @@ using System.Collections.Generic;
 //Main script for individual citizens
 public class CitizenBehavior : MonoBehaviour 
 {
-	static float FATIGUESCALE = (1f/35f)*Utilities.TIMESCALE;//how many seconds to fatigue if fatigue rate is 1
-															 //a higher denominator means more seconds
-	static float HUNGERSCALE = (1f/75f)*Utilities.TIMESCALE;//how many seconds for the recovery stat to drop by 1
-                                                            //higher denominator means more seconds
-    static float BUFFSCALE = 1.5f;   //flat scalar for all buff durations
-    static float IDLEBONUS = 2f;    //scalar for recovery time if idle
-    static float MEALBONUS = .25f;   //scalar for direct attribute recovery from eating
-
     public GameController_Script gameController;
+    GameObject selectedTask;    //gets selected task from gamecontroller for colormanagement purposes
+    Renderer render;	//for color management
 
-	public bool canMove{get; private set;}
+    public GameObject selectedIndicator;    //child object of each citizen, active if selected
+    public GameObject buffIndicator;
+    ParticleSystem buffParticles;
+
+    GameObject idlePad;
+
+    //access = maxAttributes[attrib];
+    public Dictionary<Utilities.Attributes, float> maxAttributes;
+    public Dictionary<Utilities.Attributes, float> currentAttributes;
+
+    //anytime this citizen is assigned to a new task, these are updated from
+    //the task it is assigned to
+    public Utilities.Attributes primaryEff { get; private set; }
+    public Utilities.Attributes secondaryEff { get; private set; }
+    public Utilities.Attributes primaryQual { get; private set; }
+    public Utilities.Attributes secondaryQual { get; private set; }
+    public float fitness { get; private set; } //used by tasks to calculate progression speed
+    float fatigueRate;
+
+    
 	public GameObject currentProspect {get; private set;}	//holds the last slottable object this citizen collided with
 															//referenced when the citizen is dropped
 															//stored here b/c you cannot manually detect collisions
 
-	public GameObject currentSlot {get; private set;}		//holds the current pad/plot that the citizen is slotted into
-	
-	GameObject selectedTask;	//gets selected task from gamecontroller for colormanagement purposes
+	public GameObject currentSlot {get; private set;}       //holds the current pad/plot that the citizen is slotted into
 
-	/*GET UI VALUES FOR ATTRIBUTES FROM HERE
-	  EXAMPLE REFERENCE MIGHT LOOK LIKE 
-
-	  int currentAttribute;
-	  currentAttribute = dictName[Utilities.Attributes.Strength];
-
-	 */
-    public Dictionary<Utilities.Attributes, float> maxAttributes;
-    public Dictionary<Utilities.Attributes, float> currentAttributes;
-
-	public GameObject selectedIndicator;	//child object of each citizen, active if selected
-	public GameObject buffIndicator;
-	ParticleSystem buffParticles;
-	//float buffDurationLeft;
-	
-	Renderer render;	//for color management
-
-	GameObject idlePad;
-
-	//anytime this citizen is assigned to a new task, these are updated from
-	//the task it is assigned to
-	public Utilities.Attributes primaryEff { get; private set; }
-	public Utilities.Attributes secondaryEff { get; private set; }
-    public Utilities.Attributes primaryQual { get; private set; }
-    public Utilities.Attributes secondaryQual { get; private set; }
-    float fatigueRate;
-	public bool isActive{get; private set;}
-
+    public bool canMove { get; private set; }
+    public bool isActive{get; private set;}
+    
     public CropsAndBuffs.Buff currentBuff;
-    public Utilities.CropTypes buffCropType { get; private set; }
-
-	public float fitness{get; private set;} //used by tasks to calculate progression speed
+    public Utilities.CropTypes buffCropType { get; private set; } //used for UI
 
 	void Awake()
 	{
@@ -68,7 +52,6 @@ public class CitizenBehavior : MonoBehaviour
 
 		maxAttributes = new Dictionary<Utilities.Attributes, float>();
 		currentAttributes = new Dictionary<Utilities.Attributes, float>();
-		//GenerateRandomAttributes ();
 
 		render = this.gameObject.GetComponent<Renderer>();
 
@@ -94,11 +77,9 @@ public class CitizenBehavior : MonoBehaviour
 	void LateUpdate()
 	{
 		AdjustColors();
-        //UpdateCurrentCitizenAttributeValues(); // update UI slider Attributes
 	}
 
 	//+++++++Core Every-Frame Functions++++++//
-
 
 	//If something is updated every frame regardless of input, put it here
 	void UpdateMetrics()
@@ -107,8 +88,11 @@ public class CitizenBehavior : MonoBehaviour
 		if (currentSlot.tag == "WorkStation")
 		{
 			WorkStationBehavior currentScript = currentSlot.GetComponent<WorkStationBehavior>();
-			canMove = !currentScript.isActive;
+
+            if (currentScript.stationType != Utilities.WorkStations.FarmPlot)
+			    canMove = !currentScript.isActive;
 		}
+        
 
 		fitness = GetFitness ();
 
@@ -132,22 +116,32 @@ public class CitizenBehavior : MonoBehaviour
 		}
 	}
 
+    //runs after fatigue to check for buffs
+    //if they exist, then attributes will be readjusted to compensate for the buff effects
     void BuffFilter()
     {
-        float currentRecovery = (Time.deltaTime / maxAttributes[Utilities.Attributes.Recovery]) * FATIGUESCALE * (Mathf.Ceil(currentAttributes[Utilities.Attributes.Recovery]));
-        float currentFatigue = Time.deltaTime * FATIGUESCALE * fatigueRate;
+        //setting up some variables so the equations aren't silly long
+        //recovery ratio = percentage of recovery out of max
+        //current recovery/fatigue = how much of a primary attribute was recovered/fatigued this tick
+        //curren att = attribute that is affected by the buff
+        float recoveryRatio = Mathf.Ceil(currentAttributes[Utilities.Attributes.Recovery]) / maxAttributes[Utilities.Attributes.Recovery];
+        float currentRecovery = Time.deltaTime  * Utilities.FATIGUESCALE * recoveryRatio;
+        float currentFatigue = Time.deltaTime * Utilities.FATIGUESCALE * fatigueRate;
         float currentAtt = currentAttributes[currentBuff.attribute];
         float difference = 0f;
 
         if (currentBuff.buffType == Utilities.BuffTypes.Recovery)
         {
             difference = currentRecovery * (currentBuff.value / 100);
+            
             currentAtt = Mathf.Min(currentAtt + difference, maxAttributes[currentBuff.attribute]);
+            currentAttributes[currentBuff.attribute] = currentAtt;
         }
         else if (currentBuff.buffType == Utilities.BuffTypes.Drain)
         {
             difference = currentFatigue * (currentBuff.value / 100);
             currentAtt = Mathf.Min(currentAtt + difference, maxAttributes[currentBuff.attribute]);
+            currentAttributes[currentBuff.attribute] = currentAtt;
         }
         else if (currentBuff.buffType == Utilities.BuffTypes.AttributeScalar)
         {
@@ -160,40 +154,29 @@ public class CitizenBehavior : MonoBehaviour
                 currentAttributes[currentBuff.attribute] = currentBuff.value;
 
         }
-        else if (currentBuff.buffType == Utilities.BuffTypes.AttributeLockNegative)//negative = debuff
-        {
-            //debuffs not here yet
 
-        }
-
-        //if (gameController.selectedCitizen == this.gameObject)
-        //print ("buffing " + currentBuff.attribute + " type " + currentBuff.buffType + " base rec: " + currentRecovery + " base fat: " + currentFatigue + " value: " + currentBuff.value + " buffdifference: " + difference);
-
-        //if (gameController.selectedCitizen == this.gameObject)
-            //print(Utilities.GenerateBuffText(currentBuff));
     }
 
     void Fatigue()
 	{
-		//if (gameController.selectedCitizen == this.gameObject)
-			//print ("dex: " + currentAttributes[Utilities.Attributes.Dexterity] + " str: " + currentAttributes[Utilities.Attributes.Strength] + " end: " + currentAttributes[Utilities.Attributes.Recovery]);
+		float currentRecovery = (Time.deltaTime/maxAttributes[Utilities.Attributes.Recovery]) * Utilities.FATIGUESCALE * (Mathf.Ceil (currentAttributes[Utilities.Attributes.Recovery]));
+		float currentFatigue = Time.deltaTime * Utilities.FATIGUESCALE * fatigueRate;
 
-		float currentRecovery = (Time.deltaTime/maxAttributes[Utilities.Attributes.Recovery]) * FATIGUESCALE * (Mathf.Ceil (currentAttributes[Utilities.Attributes.Recovery]));
-		float currentFatigue = Time.deltaTime * FATIGUESCALE * fatigueRate;
-
+        //debug prints
         //if (gameController.selectedCitizen == this.gameObject)
-            //print("rate : " + fatigueRate + " scale: " + FATIGUESCALE + " curfat: " + currentFatigue + "currec: " + currentRecovery);
+            //print("rate : " + fatigueRate + " scale: " + Utilities.FATIGUESCALE + " curfat: " + currentFatigue + "currec: " + currentRecovery);
 
+        //recover if citizen is idle, recover everything
 		if (!isActive || primaryEff == Utilities.Attributes.None)
 		{
 			for(int c=4; c < 10; c++)
 			{
 				float currentAtt = currentAttributes[(Utilities.Attributes)c];
 
-				currentAttributes[(Utilities.Attributes)c] = Mathf.Min (currentAtt + currentRecovery*IDLEBONUS, maxAttributes[(Utilities.Attributes)c]);
+				currentAttributes[(Utilities.Attributes)c] = Mathf.Min (currentAtt + currentRecovery*Utilities.IDLEBONUS, maxAttributes[(Utilities.Attributes)c]);
 			}
 		}
-		else
+		else //citizen is working
 		{
 			for (int c=4; c < 10; c++)
 			{
@@ -219,11 +202,11 @@ public class CitizenBehavior : MonoBehaviour
 		{
 			if (currentAttributes[primaryEff] == 0 || currentAttributes[primaryQual] == 0)
 			{
-				currentAttributes[Utilities.Attributes.Recovery] = Mathf.Max (currentAttributes[Utilities.Attributes.Recovery] - Time.deltaTime*HUNGERSCALE*3, 1);
+				currentAttributes[Utilities.Attributes.Recovery] = Mathf.Max (currentAttributes[Utilities.Attributes.Recovery] - Time.deltaTime*Utilities.HUNGERSCALE*3, 1);
 			}
 			else
 			{
-				currentAttributes[Utilities.Attributes.Recovery] = Mathf.Max (currentAttributes[Utilities.Attributes.Recovery] - Time.deltaTime*HUNGERSCALE, 1);
+				currentAttributes[Utilities.Attributes.Recovery] = Mathf.Max (currentAttributes[Utilities.Attributes.Recovery] - Time.deltaTime*Utilities.HUNGERSCALE, 1);
 			}
 		}
 	}
@@ -246,38 +229,16 @@ public class CitizenBehavior : MonoBehaviour
 			currentProspect = currentSlot;
 		}
 
-		if (currentProspect.tag == "FarmPlot" && currentProspect.GetComponent<FarmPlot_Cultivation>().IsFull())
-		{
-			currentProspect = currentSlot;
-
-		}
-
 		if (currentProspect.tag == "WorkStation" && currentProspect.GetComponent<WorkStationBehavior>().IsFull())
 		{
 			currentProspect = currentSlot;
 		}
 
-		if (currentProspect.tag == "FarmPlot")
-		{
-			FarmPlot_Cultivation currentScript = currentProspect.GetComponent<FarmPlot_Cultivation>();
-			currentScript.Assign (this.gameObject);
-			SetTaskAttributes (currentScript.primaryEff, currentScript.secondaryEff, currentScript.primaryQual, currentScript.secondaryQual, currentScript.fatigueRate);
-
-			if (primaryEff == Utilities.Attributes.None)
-				Deactivate ();
-			else
-				Activate ();
-
-			currentSlot = currentProspect;
-
-		}
-		else if (currentProspect.tag == "Pad")
+		if (currentProspect.tag == "Pad")
 		{
 			PadBehavior currentScript = currentProspect.GetComponent<PadBehavior>();
 			currentScript.Assign (this.gameObject);
 			SetTaskAttributes (currentScript.primaryEff, currentScript.secondaryEff, currentScript.primaryQual, currentScript.secondaryQual, currentScript.fatigueRate);
-
-			//Deactivate ();
 
 			currentSlot = currentProspect;
 		}
@@ -301,17 +262,13 @@ public class CitizenBehavior : MonoBehaviour
 	{
 		Deactivate ();
 
-		if (currentSlot.tag == "FarmPlot")
-		{
-			currentSlot.GetComponent<FarmPlot_Cultivation>().Unassign (this.gameObject);
-		}
-		else if (currentSlot.tag == "Pad")
+		if (currentSlot.tag == "Pad")
 		{
 			currentSlot.GetComponent<PadBehavior>().Unassign (this.gameObject);
 		}
 		else if (currentSlot.tag == "WorkStation")
 		{
-			currentSlot.GetComponent<WorkStationBehavior>().Release ();
+			currentSlot.GetComponent<WorkStationBehavior>().Unassign (this.gameObject);
 		}
 		else
 		{
@@ -326,23 +283,27 @@ public class CitizenBehavior : MonoBehaviour
 
 	public void Feed(float amount, CropsAndBuffs.Buff buff_in, Utilities.CropTypes cropType_in)
 	{
-        //print ("old amount: " + currentAttributes[Utilities.Attributes.Recovery]);
         if (buff_in.buffType != Utilities.BuffTypes.None)
         {
             currentBuff = buff_in;
-            currentBuff.duration *= BUFFSCALE;
+            currentBuff.duration *= Utilities.BUFFSCALE;
             buffCropType = cropType_in;
             ApplyBuff(currentBuff);
 
         }
 
-        float oldRecovery = currentAttributes[Utilities.Attributes.Recovery];
+        //eating provides a small boost to all stats depending on how much was recovered
+        //recoveryDifference is used to make sure this bonus doesn't encroach into full recovery
+        //(ie: eating when already full)
+        float recoveryDifference = currentAttributes[Utilities.Attributes.Recovery];
         currentAttributes[Utilities.Attributes.Recovery] = Mathf.Min (currentAttributes[Utilities.Attributes.Recovery]+amount, 10);
-        oldRecovery = currentAttributes[Utilities.Attributes.Recovery] - oldRecovery;
+
+        //recoveryDifference now refers to the difference between old and new
+        recoveryDifference = currentAttributes[Utilities.Attributes.Recovery] - recoveryDifference;
 
         for (int c = (int)Utilities.Attributes.Strength; c <= (int)Utilities.Attributes.Acumen; c++)
         {
-            currentAttributes[(Utilities.Attributes)c] = Mathf.Min(currentAttributes[(Utilities.Attributes)c] + oldRecovery*MEALBONUS, maxAttributes[(Utilities.Attributes)c]);
+            currentAttributes[(Utilities.Attributes)c] = Mathf.Min(currentAttributes[(Utilities.Attributes)c] + recoveryDifference*Utilities.MEALBONUS, maxAttributes[(Utilities.Attributes)c]);
         }
 
 
@@ -350,8 +311,6 @@ public class CitizenBehavior : MonoBehaviour
         if (gameController.selectedCitizen == this.gameObject)
             GameObject.Find("Current_Buff_UI").GetComponent<CurrentBuffUI_Script>().SetBuff();
 
-
-        //print ("new amount: " + currentAttributes[Utilities.Attributes.Recovery]);
     }
 
 
@@ -365,16 +324,6 @@ public class CitizenBehavior : MonoBehaviour
 
 		fatigueRate = fatigue_in;
 	
-	}
-
-	public void IdleAttributes()
-	{
-		primaryEff = Utilities.Attributes.None;
-		secondaryEff = Utilities.Attributes.None;
-		primaryQual = Utilities.Attributes.None;
-		secondaryQual = Utilities.Attributes.None;
-		
-		fatigueRate = 1;
 	}
 
 	public float GetFitness()
@@ -401,20 +350,7 @@ public class CitizenBehavior : MonoBehaviour
 
 		float primEff, secEff, primQual, secQual;
 
-		if (selectedTask.tag == "FarmPlot")
-		{
-			FarmPlot_Cultivation taskScript = selectedTask.GetComponent<FarmPlot_Cultivation>();
-
-			if (taskScript.primaryEff == Utilities.Attributes.None)
-				return -1;
-
-
-			primEff = Mathf.Ceil (currentAttributes[taskScript.primaryEff]);
-			secEff = Mathf.Ceil (currentAttributes[taskScript.secondaryEff]);
-			primQual = Mathf.Ceil (currentAttributes[taskScript.primaryQual]);
-			secQual = Mathf.Ceil (currentAttributes[taskScript.secondaryQual]);
-		}
-		else if (selectedTask.tag == "WorkStation")
+        if (selectedTask.tag == "WorkStation")
 		{
 			WorkStationBehavior taskScript = selectedTask.GetComponent<WorkStationBehavior>();
 
@@ -519,10 +455,6 @@ public class CitizenBehavior : MonoBehaviour
 		{
 			currentProspect = collision_in.gameObject;
 		}
-		else if (collision_in.tag == "FarmPlot")
-		{
-			currentProspect = collision_in.gameObject;
-		}
 		else if (collision_in.tag == "WorkStation")
 		{
 			currentProspect = collision_in.gameObject;
@@ -534,10 +466,6 @@ public class CitizenBehavior : MonoBehaviour
 	void OnTriggerExit(Collider collision_in)
 	{
 		if (collision_in.tag == "Pad")
-		{
-			currentProspect = null;
-		}
-		else if (collision_in.tag == "FarmPlot")
 		{
 			currentProspect = null;
 		}
@@ -553,6 +481,8 @@ public class CitizenBehavior : MonoBehaviour
 
 	//+++++++Debug, Setup, Misc++++++//
 
+    //called by citizenmanager during initial set up
+    //should not otherwise be used
     public void SetAttributes(int str_in, int dex_in, int end_in, int perc_in, int foc_in, int acu_in)
     {
         maxAttributes.Add(Utilities.Attributes.Health, 10);
@@ -581,6 +511,7 @@ public class CitizenBehavior : MonoBehaviour
         currentAttributes.Add(Utilities.Attributes.Acumen, acu_in);
     }
 
+    /*
 	//currently used to help test the UI
 	void GenerateRandomAttributes()
 	{
@@ -597,7 +528,7 @@ public class CitizenBehavior : MonoBehaviour
 		maxAttributes[Utilities.Attributes.Recovery] = 10;
 		currentAttributes[Utilities.Attributes.Recovery] = 10;
 		//print (maxHealth + " " + maxHappiness + " " + maxRecovery + " " + maxStr + " " + maxDex + " " + maxEnd);
-	}
+	}*/
 
 	void GetSelectedTask()
 	{
@@ -638,7 +569,7 @@ public class CitizenBehavior : MonoBehaviour
             if (currentBuff.buffType == Utilities.BuffTypes.AttributeScalar)
             {
                 maxAttributes[currentBuff.attribute] += (int)Mathf.Floor(currentBuff.value);
-
+                currentAttributes[currentBuff.attribute] += (int)Mathf.Floor(currentBuff.value);
             }
             //print (currentBuff.name + " duration: " + currentBuff.duration + " value: " + currentBuff.value);
         }

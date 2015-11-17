@@ -26,15 +26,12 @@ public class GameController_Script : MonoBehaviour {
 
     public int baseLevelUp{get; private set;} //how much money to go from 1 to 2
 
-
 // Use this for initialization
     void Start () 
 	{
 		plotManager = GameObject.Find ("PlotManager").GetComponent<PlotManager_Script>();
 		citizenManager = GameObject.Find ("CitizenManager").GetComponent<CitizenManager_Script>();
 		storageBehavior = GameObject.Find ("Storage").GetComponent<StorageBehavior>();
-
-
 
 		modeCounter = 0;
 		currentMoney = 0;
@@ -47,9 +44,6 @@ public class GameController_Script : MonoBehaviour {
 
 
         baseLevelUp = 80;
-		//print (stocks[15]);
-
-		//LevelUp ();
 	}
 
 	void Awake()
@@ -66,12 +60,11 @@ public class GameController_Script : MonoBehaviour {
 		GetInput ();
 
         CheckMoney();
-		//print (stocks[15]);
 	}
 
     void LateUpdate()
     {
-        //UpdateCurrentCitizenAttributeValues();
+
     }
 
 	void GetInput()
@@ -110,43 +103,14 @@ public class GameController_Script : MonoBehaviour {
 						draggingObject = selectedCitizen;
 
 				}
-
-
-				if (hit.collider.tag == "FarmPlot")
-				{
-					if (selectedTask != null)
-					{
-						if (selectedTask.tag == "FarmPlot")
-						{
-							selectedTask.GetComponent<FarmPlot_Cultivation>().Deselect ();
-						}
-						else if (selectedTask.tag == "WorkStation")
-						{
-							selectedTask.GetComponent<WorkStationBehavior>().Deselect ();
-						}
-						else
-						{
-							print ("SOMETHING HAS GONE WRONG IN MOUSE SELECTION: TAG NOT HANDLED");
-						}
-					}
-
-					selectedTask = hit.collider.gameObject;
-					selectedTask.GetComponent<FarmPlot_Cultivation>().Select();
-				}
-				
 				
 				if (hit.collider.tag == "WorkStation")
 				{
 					if (selectedTask != null)
 					{
-						if (selectedTask.tag == "FarmPlot")
-						{
-							selectedTask.GetComponent<FarmPlot_Cultivation>().Deselect ();
-						}
-						else if (selectedTask.tag == "WorkStation")
+                        if (selectedTask.tag == "WorkStation")
 						{
 							selectedTask.GetComponent<WorkStationBehavior>().Deselect ();
-
 						}
 						else
 						{

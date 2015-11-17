@@ -26,7 +26,6 @@ public class PadBehavior : MonoBehaviour {
 		assignedCitizens = new Dictionary<GameObject, int>();
 		numAssigned = 0;
 
-		//this will need to be changed when pads change into dif types
 		primaryEff = Utilities.Attributes.None;
 		secondaryEff = Utilities.Attributes.None;
 		primaryQual = Utilities.Attributes.None;
