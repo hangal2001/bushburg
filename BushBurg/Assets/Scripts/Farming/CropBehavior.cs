@@ -3,27 +3,25 @@ using System.Collections;
 
 public class CropBehavior : MonoBehaviour {
 
-	public Utilities.CropTypes cropType{get; private set;}
+    GameController_Script gameController;
+
+    GameObject indicator;
+    public GameObject indicatorPrefab;
+
+    public StorageBehavior storage;
+    public MealTrayBehavior mealTray;
+
+    public Utilities.CropTypes cropType{get; private set;}
 	public Utilities.ItemTypes itemType{get; private set;}
 		
 	public GameObject currentProspect{get; private set;}
-	
-	public Vector3 currentSlot{get; private set;}	//location of current anchor (only relevant to meal tray items)
-	public GameObject creator{get; private set;}	//reference to the object that created or stores this object
+    public GameObject creator { get; private set; } //reference to the object that created or stores this object
 
-	public GameObject indicatorPrefab;
-
-	GameController_Script gameController;
-
-	public StorageBehavior storage;
-	public MealTrayBehavior mealTray;
-
-	Vector3 moneyLoc;
-
-	GameObject indicator;
+    public Vector3 currentSlot{get; private set;}   //location of current anchor (only relevant to meal tray items)
+    Vector3 moneyLoc;
 
 	public float restoreQuality{get; private set;}
-	//public float buffQuality{get; private set;}
+	public float buffQuality{get; private set;}
 
     CropsAndBuffs.Buff currentBuff;
 
@@ -33,7 +31,7 @@ public class CropBehavior : MonoBehaviour {
 		storage = GameObject.Find ("Storage").GetComponent<StorageBehavior>();
 		gameController = GameObject.Find ("GameController").GetComponent<GameController_Script>();
 		mealTray = GameObject.Find ("MealTray").GetComponent<MealTrayBehavior>();
-		moneyLoc = new Vector3(-10.5f, 0, 20);
+		moneyLoc = new Vector3(-3.6f, 0, 20);
 
         
 	}
@@ -50,37 +48,15 @@ public class CropBehavior : MonoBehaviour {
 		itemType = type_in;
 		creator = creator_in;
 
-		if (itemType == Utilities.ItemTypes.Crop)
-		{
-			restoreQuality = restQuality_in;
-		}
+        restoreQuality = restQuality_in;
+        buffQuality = buffQuality_in;
 
 		if (itemType == Utilities.ItemTypes.Meal)
 		{
-			restoreQuality = restQuality_in;
-
             currentBuff = CropsAndBuffs.buffList[cropType];
             currentBuff.maxDuration += currentBuff.maxDuration * restoreQuality;
             currentBuff.value += currentBuff.value * buffQuality_in;
             currentBuff.duration = currentBuff.maxDuration;
-
-            /*
-			if (currentBuff.buffType == Utilities.BuffTypes.Recovery)
-			{
-
-			}
-			else if (currentBuff.buffType == Utilities.BuffTypes.Drain)
-			{
-
-			}
-			else if (currentBuff.buffType == Utilities.BuffTypes.AttributeScalar)
-			{
-
-			}
-			else if (currentBuff.buffType == Utilities.BuffTypes.AttributeLockPositive)
-			{
-
-			}*/
         }
 
 		Utilities.SetCropTexture(this.gameObject, crop_in);
@@ -93,7 +69,8 @@ public class CropBehavior : MonoBehaviour {
 
 	public void Drop()
 	{
-		if (itemType == Utilities.ItemTypes.Meal)
+        
+        if (itemType == Utilities.ItemTypes.Meal)
 		{
 			if (currentProspect != null && currentProspect.tag == "WorkStation" && currentProspect.GetComponent<WorkStationBehavior>().CanDrop ())
 			{
@@ -112,36 +89,36 @@ public class CropBehavior : MonoBehaviour {
 			//did not find a suitable location, return to last known meal tray position
 			transform.position = currentSlot;
 		}
-		else
+		else //item type is not a meal
 		{
 			if (currentProspect != null)
 			{
-				if (currentProspect.tag == "FarmPlot")
-				{
-					currentProspect.GetComponent<FarmPlot_Cultivation>().SetCrop (cropType);
-				}
+                WorkStationBehavior stationScript = currentProspect.GetComponent<WorkStationBehavior>();
 
-				if (currentProspect.tag == "WorkStation" && currentProspect.GetComponent<WorkStationBehavior>().CanDrop () && storage.crops[cropType].Count > 0)
-				{
+				if (stationScript.CanDrop ())
+				{                  
 
+                    if (stationScript.stationType == Utilities.WorkStations.FarmPlot)
+                    {
+                        stationScript.SetItem(cropType, Utilities.ItemTypes.Crop, 0f, currentBuff);
+                    }
+                    else
+                    {
+                        if (storage.crops[cropType].Count > 0)
+                        {
+                            if (stationScript.stationType == Utilities.WorkStations.Depot)
+                            {
+                                restoreQuality = storage.RemoveCropLowest(cropType);
+                            }
+                            else
+                            {
+                                restoreQuality = storage.RemoveCropHighest(cropType);
+                            }
 
-					if (currentProspect.GetComponent<WorkStationBehavior>().stationType == Utilities.WorkStations.Depot)
-					{
-						restoreQuality = storage.RemoveCropLowest(cropType);
-					}
-					else
-					{
-						restoreQuality = storage.RemoveCropHighest(cropType);
-					}
-
-					if (currentProspect.GetComponent<WorkStationBehavior>().stationType == Utilities.WorkStations.Table)
-					{
-						currentProspect.GetComponent<WorkStationBehavior>().SetItem (cropType, Utilities.ItemTypes.Crop, restoreQuality, currentBuff);
-					}
-					else
-					{
-						currentProspect.GetComponent<WorkStationBehavior>().SetItem (cropType, Utilities.ItemTypes.Crop, restoreQuality, currentBuff);
-					}
+                            stationScript.SetItem(cropType, Utilities.ItemTypes.Crop, restoreQuality, currentBuff);
+                        }
+                    }
+					
 				}
 			}
 
@@ -168,7 +145,7 @@ public class CropBehavior : MonoBehaviour {
 		}
 		else
 		{
-			if (collision_in.tag == "FarmPlot" || collision_in.tag == "WorkStation")
+			if (collision_in.tag == "WorkStation")
 			{
 				currentProspect = collision_in.gameObject;
 			}
@@ -180,7 +157,7 @@ public class CropBehavior : MonoBehaviour {
 	void OnTriggerExit(Collider collision_in)
 	{
 
-		if (collision_in.tag == "FarmPlot" || collision_in.tag == "WorkStation")
+		if (collision_in.tag == "WorkStation")
 		{
 			currentProspect = null;
 		}
@@ -212,11 +189,11 @@ public class CropBehavior : MonoBehaviour {
 			indicator.GetComponent<CollectionBehavior>().FlyToTarget (transform.position);
 			currentSlot = transform.position;
 
-
 		}
 		else if (itemType == Utilities.ItemTypes.TradeCrop)
 		{	
-			int value = CropsAndBuffs.cropList[cropType].baseValue;
+			int value = (int)(CropsAndBuffs.cropList[cropType].baseValue * (1 + buffQuality));
+            //print(CropsAndBuffs.cropList[cropType].baseValue * (1 + buffQuality) + " " +  buffQuality);
 
 			indicator.GetComponent<CollectionBehavior>().FlyToTarget (moneyLoc);
 			gameController.AddMoney (value);
@@ -227,7 +204,7 @@ public class CropBehavior : MonoBehaviour {
 		}
 		else if (itemType == Utilities.ItemTypes.TradeMeal)
 		{
-			int value = CropsAndBuffs.cropList[cropType].baseValue*3;
+			int value = (int)(CropsAndBuffs.cropList[cropType].baseValue * Utilities.TRADEBONUSVALUESCALE * (1 + buffQuality));
 			
 			indicator.GetComponent<CollectionBehavior>().FlyToTarget (moneyLoc);
 			gameController.AddMoney (value);

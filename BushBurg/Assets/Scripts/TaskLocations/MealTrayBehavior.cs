@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class MealTrayBehavior : MonoBehaviour {
 
+    static int CAPACITY = 12;
+
 	int numAssigned;			//number of meals currently assigned (currently not used for anything)
 	
 	Dictionary<GameObject, int> assignedMeals;	//list of meals and the slots they are taking (0-11)
@@ -21,6 +23,14 @@ public class MealTrayBehavior : MonoBehaviour {
 		
 	}
 	
+    //prepares mealtray for next meal
+    //done when preparation of a meal begins to avoid
+    //problems with overbooking
+    public void Reserve()
+    {
+        numAssigned++;
+    }
+
 	//called by citizen when it is assigned to this pad
 	//calculates where to put it based on the earliest free slot
 	//earliest free slot will be the first # (0 - CAPACITY) that is not in the dictionary
@@ -32,7 +42,6 @@ public class MealTrayBehavior : MonoBehaviour {
 		
 		meal_in.transform.position = GetAssignmentLoc (nextSlot);
 		
-		numAssigned++;
 		assignedMeals.Add (meal_in, nextSlot);
 		
 	}
@@ -57,4 +66,9 @@ public class MealTrayBehavior : MonoBehaviour {
 		numAssigned--;
 		assignedMeals.Remove (meal_in);
 	}
+
+    public bool IsFull()
+    {
+        return (numAssigned >= CAPACITY);
+    }
 }

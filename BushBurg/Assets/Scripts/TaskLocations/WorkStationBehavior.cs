@@ -3,360 +3,380 @@ using System.Collections;
 
 public class WorkStationBehavior : MonoBehaviour {
 
-	public static float EATTIME = 10f;    //how long it takes to eat something
+    /****set from editor****/
+    public GameObject cropPrefab;
+    public GameObject progressIndicatorPrefab;
+    public GameObject selectedIndicator;
+    /*---------------------*/
 
-	public GameObject cropPrefab;
+    /****   locations  ****/
+    protected Vector3 progressIndicatorOrigin;
+    protected Vector3 progressIndicatorLength;
+    protected Vector3 slot1Loc, slot2Loc;
+    protected Vector3 productLoc;
+    /*---------------------*/
 
-	public GameObject currentCitizen;
-	public GameController_Script gameController;
-	public Utilities.ItemTypes itemType{get; private set;}
+    /****    scripts   ****/
+    protected GameController_Script gameController;
+    protected CitizenBehavior citizen1Script;
+    protected CitizenBehavior citizen2Script;
+    protected CropBehavior cropScript;
+    /*---------------------*/
 
-	public Utilities.WorkStations stationType;
-	public GameObject selectedIndicator;
+    /****     enums    ****/
+    public Utilities.ItemTypes itemType { get; protected set; }
+    public Utilities.WorkStations stationType;
+    public Utilities.CropTypes cropType { get; protected set; }
+    /*---------------------*/
 
-	public GameObject progressIndicatorPrefab;
-	Vector3 progressIndicatorOrigin;
-	LineRenderer progressIndicator;
-	
-	public Utilities.CropTypes cropType;
+    /****citizen related****/
+    public GameObject citizen1 { get; protected set; }
+    public GameObject citizen2 { get; protected set; }
 
-	public Utilities.Attributes primaryEff{get; private set;}
-	public Utilities.Attributes secondaryEff{get; private set;}
-	public Utilities.Attributes primaryQual{get; private set;}
-	public Utilities.Attributes secondaryQual{get; private set;}
-	public float fatigueRate{get; private set;}
+    public Utilities.Attributes primaryEff { get; protected set; }
+    public Utilities.Attributes secondaryEff { get; protected set; }
+    public Utilities.Attributes primaryQual { get; protected set; }
+    public Utilities.Attributes secondaryQual { get; protected set; }
+    public float fatigueRate { get; protected set; }
+    /*---------------------*/
 
-	float restoreQuality;
-	float buffQuality;
-	float maxProductionTime;
-	public float timeToProduce { get; private set; }
-    public float timeModifier { get; private set; }
-    float recoveryRestore;
-	float timeToAutoCollect;
-	GameObject currentProduct;
+    /****product related****/
+    protected GameObject currentProduct;
+    protected LineRenderer progressIndicator;
 
-	public bool isActive{get; private set;}
+    public bool isActive { get; protected set; }
 
-	//Vector3 itemSlotLoc;
-	Vector3 citizenSlotLoc;
-	Vector3 productLoc;
+    protected float maxProductionTime;
+    protected float timeToAutoCollect;
+    public float timeToProduce { get; protected set; }
+    public float timeModifier { get; protected set; }
+    /*---------------------*/
 
-    CropsAndBuffs.Buff currentBuff;
-
-	// Use this for initialization
-	void Awake () 
-	{
-		gameController = GameObject.Find ("GameController").GetComponent<GameController_Script>();
-
-		Deselect();
-
-		//this is sloppy but works
-		//itemSlotLoc = transform.position + new Vector3(-1, 0, 0);
-		citizenSlotLoc = transform.position + new Vector3(1, 0, 0);
-
-		if (stationType == Utilities.WorkStations.Cauldron)
-		{
-			productLoc = transform.position + new Vector3(3, 0, 0);
-		}
-		else
-		{
-			productLoc = transform.position + new Vector3(3, 0, 0);
-		}
-
-		//setting stats for a given workstation
-		if (stationType == Utilities.WorkStations.Table)
-		{
-			primaryEff = Utilities.Attributes.None;
-			secondaryEff = Utilities.Attributes.None;
-			primaryQual = Utilities.Attributes.None;
-			secondaryQual = Utilities.Attributes.None;
-		}
-		else if (stationType == Utilities.WorkStations.Cauldron)
-		{
-			primaryEff = Utilities.Attributes.Dexterity;
-			secondaryEff = Utilities.Attributes.Endurance;
-			primaryQual = Utilities.Attributes.Focus;
-			secondaryQual  = Utilities.Attributes.Perception;
-		}
-		else if (stationType == Utilities.WorkStations.Depot)
-		{
-			primaryEff = Utilities.Attributes.Endurance;
-			secondaryEff = Utilities.Attributes.Dexterity;
-			primaryQual = Utilities.Attributes.Acumen;
-			secondaryQual = Utilities.Attributes.Perception;
-		}
-
-		progressIndicator = progressIndicatorPrefab.GetComponent<LineRenderer>();
-		progressIndicatorOrigin = transform.position + new Vector3(-2f, .5f, -1.2f);
-		progressIndicator.SetPosition (0, progressIndicatorOrigin);
-		progressIndicator.SetPosition (1, progressIndicatorOrigin);
-
-		timeToProduce = 0;
-		timeModifier = 0;
-		timeToAutoCollect = 0;
-		fatigueRate = 1;
-
-		currentBuff.buffType = Utilities.BuffTypes.None;
-	}
-	
-	// Update is called once per frame
-	void Update () 
-	{
-		UpdateMetrics();
-	}
-
-	void UpdateMetrics()
-	{
-		GetTimeModifier ();
-
-		if (isActive && currentProduct == null)
-		{
-			timeToProduce -= Time.deltaTime*(1/(1-timeModifier));
-
-            //if(gameController.selectedTask == this.gameObject)
-               // print(timeToProduce / Utilities.TIMESCALE);
-
-			float progressPercentage = Mathf.Min(1 - timeToProduce/maxProductionTime, 1);
-			
-			progressIndicator.SetPosition (1, progressIndicatorOrigin + new Vector3(4,0,0)*progressPercentage);
-
-			//if (gameController.selectedTask == this.gameObject)
-				//print (timeModifier + " " + (1/(1-timeModifier)) + " " + timeToProduce);
-
-			if (timeToProduce <= 0)
-			{
-				CompleteTask ();
-			}
-		}
-
-		if (isActive && currentProduct != null)
-		{
-			if (timeToAutoCollect < 0)
-			{
-				currentProduct.GetComponent<CropBehavior>().Collect ();
-			}
-			else
-			{
-				timeToAutoCollect -= Time.deltaTime*(1/(1-timeModifier));
-			}
-		}
-
-	}
-	
-	public void Assign(GameObject citizen_in)
-	{	
-		currentCitizen = citizen_in;
-		citizen_in.transform.position = citizenSlotLoc;
-
-		if (CanActivate())
-		{
-			Activate();
-		}
-	}
-
-	void GetTimeModifier()
-	{
-		float efficiency = 0;
-		
-		if (currentCitizen != null && stationType != Utilities.WorkStations.Table)
-		{
-			efficiency += currentCitizen.GetComponent<CitizenBehavior>().GetEfficiency();
-		}
-		
-		if (efficiency > 0)
-		{
-			timeModifier = Utilities.MAXTIMEMODIFIER*(efficiency/15);
-		}
-		else
-		{
-			timeModifier = 0;
-		}
-	}
-
-	public void Release()
-	{
-		if (!isActive)
-			currentCitizen = null;
-	}
-
-	public void Activate()
-	{
-		isActive = true;
-		currentCitizen.GetComponent<CitizenBehavior>().Activate();
-	}
-
-	public void Deactivate()
-	{
-		isActive = false;
-		currentCitizen.GetComponent<CitizenBehavior>().Deactivate();
-	}
-
-	public void CompleteTask()
-	{
-		if (stationType == Utilities.WorkStations.Table)
-		{
-			currentCitizen.GetComponent<CitizenBehavior>().Feed(recoveryRestore, currentBuff, cropType);
-
-			isActive = false;
-
-		}
-		else if (stationType == Utilities.WorkStations.Cauldron)
-		{
-
-            buffQuality = GetQuality();
-            //print ("qualitymeal: " + restoreQuality + " " + buffQuality);
-
-            GameObject newDraggableCrop = Instantiate(cropPrefab, productLoc, Quaternion.identity) as GameObject;
-			newDraggableCrop.GetComponent<CropBehavior>().CreateCrop(cropType, Utilities.ItemTypes.Meal, this.gameObject, restoreQuality, buffQuality);
-			
-			currentProduct = newDraggableCrop;
-			timeToProduce = maxProductionTime;
-			timeToAutoCollect = maxProductionTime/3f;
-
-		}
-		else if (stationType == Utilities.WorkStations.Depot)
-		{
-            buffQuality = GetQuality();
-			//print ("qualitytrade: " + restoreQuality + " " + buffQuality);
-
-			GameObject newDraggableCrop = Instantiate(cropPrefab, productLoc, Quaternion.identity) as GameObject;
-			newDraggableCrop.GetComponent<CropBehavior>().CreateCrop(cropType, itemType+2, this.gameObject, restoreQuality, buffQuality);
-			
-			currentProduct = newDraggableCrop;
-			timeToProduce = maxProductionTime;
-			timeToAutoCollect = maxProductionTime/3f;
-
-		}
-
-		cropType = Utilities.CropTypes.None;
-		Utilities.SetCropTexture(this.gameObject.transform.GetChild (1).gameObject, cropType);
-		
-		progressIndicator.SetPosition (1, progressIndicatorOrigin);
+    /****  buff related ****/
+    protected CropsAndBuffs.Buff currentBuff;
+    protected float recoveryRestore;
+    protected float restoreQuality;
+    protected float buffQuality;
+    /*---------------------*/
 
 
-	}
-
-    public float GetQuality()
+    // Use this for initialization
+    void Awake()
     {
-        float quality = 0;
+        gameController = GameObject.Find("GameController").GetComponent<GameController_Script>();
 
-        if (currentCitizen != null)
-        {
-            quality = currentCitizen.GetComponent<CitizenBehavior>().GetQuality();
-            quality /= 15;
-        }
+        Deselect();
 
-        return quality;
+        Initialize();
     }
 
+    // Update is called once per frame
+    void Update()
+    {
+        UpdateMetrics();
+    }
+
+    /* xUpdateMetrics
+       called every frame to update things that are time dependent*/
+    protected void UpdateMetrics()
+    {
+        GetTimeModifier();
+
+        if (isActive && currentProduct == null)
+        {
+            timeToProduce -= Time.deltaTime * ConvertedTimeModifier();
+
+            //if(gameController.selectedTask == this.gameObject)
+            // print(timeToProduce / Utilities.TIMESCALE);
+
+            float progressPercentage = Mathf.Min(1 - timeToProduce / maxProductionTime, 1);
+
+            progressIndicator.SetPosition(1, progressIndicatorOrigin + progressIndicatorLength * progressPercentage);
+
+            //if (gameController.selectedTask == this.gameObject)
+            //print (timeModifier + " " + (1/(1-timeModifier)) + " " + timeToProduce);
+
+            if (timeToProduce <= 0)
+            {
+                CompleteTask();
+            }
+        }
+
+        if (isActive && currentProduct != null)
+        {
+            if (timeToAutoCollect < 0)
+            {
+                cropScript.Collect();
+            }
+            else
+            {
+                timeToAutoCollect -= Time.deltaTime * ConvertedTimeModifier();
+            }
+        }
+
+    }
+
+    /* xUnassign
+       called by citizens when they are attempting to be 
+       assigned elsewhere - may stop production as well*/
+    public void Unassign(GameObject citizen_in)
+    {
+        if (citizen1 != null && citizen_in == citizen1)
+        {
+            citizen1 = null;
+            citizen1Script = null;
+        }
+        else if (citizen2 != null && citizen_in == citizen2)
+        {
+            citizen2 = null;
+            citizen2Script = null;
+        }
+        else
+        {
+            print("ERROR IN WORKSTATION UNASSIGN: CITIZEN NOT ASSIGNED TO THIS WORKSTATION");
+        }
+
+        if (citizen1 == null && citizen2 == null)
+        {
+            Deactivate();
+        }
+    }
+
+    /* xSelect
+        called by Game Controller when clicked on*/
+    public void Select()
+    {
+        selectedIndicator.SetActive(true);
+    }
+
+    /* xDeselect
+        called by Game Controller when another station is clicked on*/
+    public void Deselect()
+    {
+        selectedIndicator.SetActive(false);
+    }
+
+    /*xRemoveProductReference
+      cropBehavior calls this when the item is collected
+      because the object is not destroyed in that specific case*/
+    public void RemoveProductReference()
+    {
+        currentProduct = null;
+        cropScript = null;
+    }
+
+    /* xGetTimeModifier()
+        called by metrics update to know how much that assigned
+        citizens contribute to reducing production time*/
+    protected void GetTimeModifier()
+    {
+        float efficiency = GetEfficiency();
+
+        if (efficiency > 0)
+        {
+            timeModifier = Utilities.MAXTIMEMODIFIER * (efficiency / 15);
+        }
+        else
+        {
+            timeModifier = 0;
+        }
+    }
+
+    /* xGetEfficiency()
+        called by this class to find efficiency given assigned citizens*/
+    protected virtual float GetEfficiency()
+    {
+        float efficiency = 0;
+
+        if (citizen1 != null)
+        {
+            efficiency += citizen1Script.GetEfficiency();
+        }
+
+        if (citizen2 != null)
+        {
+            efficiency += citizen2Script.GetEfficiency();
+        }
+
+        return efficiency;
+    }
+
+    /* xConvertedTimeModifier
+       called as a convenience whenever the time modifier must
+       be inverted for calculation*/
     public float ConvertedTimeModifier()
     {
         return (1 / (1 - timeModifier));
     }
 
-    //cropBehavior calls this when the item is collected
-    //because the object is not destroyed in that specific case
-    public void RemoveProductReference()
-	{
-		currentProduct = null;
-	}
+    /* xGetQuality
+   returns a quality value based on citizen attributes
+   called on product completion*/
+    public virtual float GetQuality()
+    {
+        float quality = 0;
 
-	public bool IsFull()
-	{
-		if (currentCitizen != null)
-			return true;
-		else
-			return false;
-	}
+        if (citizen1 != null)
+        {
+            quality = citizen1.GetComponent<CitizenBehavior>().GetQuality();
+            quality /= 15;
+        }
 
-	public bool CanActivate()
-	{
-		return (CanFeed() || CanCook() || CanTrade ());
-	}
+        if (citizen2 != null)
+        {
+            quality += citizen2.GetComponent<CitizenBehavior>().GetQuality() / 15;
+        }
 
-	public bool CanDrop()
-	{
-		return (!isActive);
-	}
+        return quality;
+    }
 
-	public bool CanFeed()
-	{
-		return (currentCitizen != null && stationType == Utilities.WorkStations.Table && cropType != Utilities.CropTypes.None);
-	}
+    /* xDeactivate
+      called from thsi script or from citizens when unassigned
+      boolean flag used because other scripts check for activity
+      periodically*/
+    public void Deactivate()
+    {
+        isActive = false;
 
-	public bool CanCook()
-	{
-		return (currentCitizen != null && stationType == Utilities.WorkStations.Cauldron && cropType != Utilities.CropTypes.None);
-	}
+        if (citizen1 != null)
+        {
+            citizen1Script.Deactivate();
+        }
 
-	public bool CanTrade()
-	{
-		return (currentCitizen != null&& stationType == Utilities.WorkStations.Depot && cropType != Utilities.CropTypes.None);
-	}
+        if (citizen2 != null)
+        {
+            citizen2Script.Deactivate();
+        }
 
-	public void Select()
-	{
-		selectedIndicator.SetActive (true);
-	}
-	
-	public void Deselect()
-	{
-		selectedIndicator.SetActive (false);
-	}
-
-	public void SetItem(Utilities.CropTypes crop_in, Utilities.ItemTypes itemType_in, float restQuality_in, CropsAndBuffs.Buff buff_in)
-	{
-		itemType = itemType_in;
-		cropType = crop_in;
-		restoreQuality = restQuality_in;
-		//buffQuality = buffQuality_in;
-		CropsAndBuffs.Crop newCrop = CropsAndBuffs.cropList[cropType];
-
-		if (stationType == Utilities.WorkStations.Cauldron)
-		{
-			//fatigueRate = newCrop.fatigueRate/Utilities.COOKTIMERATIO;
-			maxProductionTime = (newCrop.timeToProduce*Utilities.COOKTIMERATIO)/(Utilities.TIMESCALE);
-            //print(maxProductionTime);
-			timeToProduce = maxProductionTime;
-		}
-		else if (stationType == Utilities.WorkStations.Table)
-		{
-			if (itemType == Utilities.ItemTypes.Meal)
-			{
-                currentBuff = buff_in;
-			}
-			else
-			{
-				currentBuff.buffType = Utilities.BuffTypes.None;
-			}
-
-			recoveryRestore = newCrop.baseRecovery + newCrop.baseRecovery*restoreQuality;
-			maxProductionTime = EATTIME/Utilities.TIMESCALE;
-			timeToProduce = maxProductionTime;
+    }
 
 
-		}
-		else if (stationType == Utilities.WorkStations.Depot)
-		{
+    /****  VIRTUAL METHODS   ****/
 
-			//fatigueRate = newCrop.fatigueRate/Utilities.TRADETIMERATIO;
-			maxProductionTime = newCrop.timeToProduce*Utilities.TRADETIMERATIO/(Utilities.TIMESCALE);
-			timeToProduce = maxProductionTime;
-		}
-		
-		if (currentCitizen != null)
-		{
-			currentCitizen.GetComponent<CitizenBehavior>().SetTaskAttributes (primaryEff, secondaryEff, primaryQual, secondaryQual, fatigueRate);
-			//print (primaryEff);
+    /* xActivate
+       called from this script or from citizens or from cropbehavior
+       boolean flag is used because other scripts check for activity 
+       periodically*/
+    public virtual void Activate()
+    {
+        if (citizen1 != null || citizen2 != null)
+        {
+            if (cropType != Utilities.CropTypes.None)
+            {
+                isActive = true;
 
-			if (CanActivate ())
-				Activate ();
-		}
-		
-		Utilities.SetCropTexture(this.gameObject.transform.GetChild (1).gameObject, crop_in);
+                if (citizen1 != null)
+                {
+                    citizen1Script.Activate();
+                }
+
+                if (citizen2 != null)
+                {
+                    citizen2Script.Activate();
+                }
+            }
+        }
+
+    }
+
+    /* xAssign
+        called by citizens (usually when dropped) to update task 
+        attributes and possibly start production
+        
+        base class works for 1 citizen*/
+    public virtual void Assign(GameObject citizen_in)
+    {
+
+        if (citizen1 == null)
+        {
+            citizen1 = citizen_in;
+            citizen1Script = citizen1.GetComponent<CitizenBehavior>();
+            citizen1.transform.position = slot1Loc;
+        }
+        else
+        {
+            //FIXFIX return to sender
+        }
+
+        //If possible, activate workstation
+        Activate();
+
+    }
+
+    /* xCompleteTask
+       goes about creating a product when timer reaches 0*/
+    public virtual void CompleteTask()
+    {
+        progressIndicator.SetPosition(1, progressIndicatorOrigin);
+    }
+
+    /* xSetItem
+       called by cropbehavior when slotting a new item, 
+       code varies by type of station and type of crop
+       also sets buff values*/
+    public virtual void SetItem(Utilities.CropTypes crop_in, Utilities.ItemTypes itemType_in, float restQuality_in, CropsAndBuffs.Buff buff_in)
+    {
+        timeToProduce = maxProductionTime;
+
+        if (citizen1 != null)
+        {
+            citizen1Script.SetTaskAttributes(primaryEff, secondaryEff, primaryQual, secondaryQual, fatigueRate);
+
+            Activate();
+        }
+
+        if (citizen2 != null)
+        {
+            citizen2Script.SetTaskAttributes(primaryEff, secondaryEff, primaryQual, secondaryQual, fatigueRate);
+
+            Activate();
+        }
+
+        Utilities.SetCropTexture(this.gameObject.transform.GetChild(1).gameObject, crop_in);
 
         if (gameController.selectedTask == this.gameObject)
             GameObject.Find("Current_Task_UI").GetComponent<CurrentTaskUI_Script>().SetTask();
     }
 
+    /* xCanDrop
+   Asked by draggable crops to see if they can be slotted into this workstation*/
+    public virtual bool CanDrop()
+    {
+        return (!isActive && cropType == Utilities.CropTypes.None);
+    }
+
+    /* xIsFull
+       Asked by citizens to see if they can be slotted into this workstation*/
+    public virtual bool IsFull()
+    {
+        return (citizen1 != null);
+    }
+
+    /* xInitialize
+
+    Sets up following values:
+    location of slot(s)
+    location to spawn product when a cycle ends
+    locations for product completion line renderer
+    primary and secondary attributes
+    time modifiers
+    fatigue rate
+    buff type
+*/
+    protected virtual void Initialize()
+    {
+        //print(slot1Loc);
+        progressIndicator = progressIndicatorPrefab.GetComponent<LineRenderer>();
+
+        timeToProduce = 0;
+        timeModifier = 0;
+        timeToAutoCollect = 0;
+        fatigueRate = 1;
+
+        currentBuff.buffType = Utilities.BuffTypes.None;
+
+        //initializing line renderer to appear empty
+        progressIndicator.SetPosition(0, progressIndicatorOrigin);
+        progressIndicator.SetPosition(1, progressIndicatorOrigin);
+    }
 }
